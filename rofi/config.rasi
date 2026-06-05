@@ -1,0 +1,13 @@
+/** Basic config file **/
+
+configuration {
+    show-icons: true;
+    icon-theme: "Papirus";
+    
+    /* Added a space after the icons to separate them from the search text */
+    display-drun: " ";    /* Search/App Grid icon */
+    display-window: "󱂬 ";  /* Window icon */
+    display-combi: "center";
+}
+
+@theme "themes/rofi.rasi"

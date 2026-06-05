@@ -1,140 +1,112 @@
-# 🚀 MyBSPWM
-
-Minimal, clean and fast BSPWM setup for Debian.
 
 ---
+# 🚀 Debian BSPWM Setup
+A fast, lightweight, and modern **Debian desktop environment** powered by **BSPWM**.
+---
+A fully automated installation script to deploy a clean, fast, and keyboard-driven BSPWM (Binary Space Partitioning Window Manager) environment on Debian/Ubuntu systems.
 
-- BSPWM
-- SXHKD
-- Picom (Rounded Corners + Shadow)
-- Alacritty
-- Firefox ESR
-- Brightness Control
-- Touchpad (Tap to Click + Natural Scrolling)
+## ✨ Features
+* Interactive installer
+* Fully automated setup
+* BSPWM tiling window manager
+* SXHKD keyboard shortcuts
+
+### 🎨 Appearance
+
+* Polybar status bar
+* Rofi application launcher
+* Picom compositor
+* JetBrainsMono & FiraCode Nerd Fonts
+
+### ⚙️ Software Selection
+
+| Category        | Options                            |
+| --------------- | ---------------------------------- |
+>| 🖥️ Terminal    | Alacritty • Kitty                  |
+
+>| 📁 File Manager | Thunar • Dolphin • Nautilus        |
+
+>| 🌐 Browser      | Firefox • Brave • Thorium • Chrome |
+
+## 📦 Included
+
+* BSPWM
+* SXHKD
+* Polybar
+* Rofi
+* Picom
+* Dunst
+* Feh
+* Nerd Fonts
+* Themes & Icons
+
+## 🎯 Built For
+>Developers • Power Users • Minimalists
+
+> No bloat. No distractions. Just a fast and productive desktop.
+
+> Clean • Fast • Productive
+---
+---
+### Desktop Preview
+<img src="screenshots/Desktop.png" width="100%">
 
 ---
+---
+### Rofi Launcher
+<img src="screenshots/rofi.png" width="100%">
 
-# 📦 Installation
+---
+---
+### Alacritty
+<img src="screenshots/Alacritty.png" width="100%">
 
+---
+---
+### Directories Structure
+<img src="screenshots/Directory Structure.png" width="100%">
+
+---
+---
+## Keybinding (sxhkd)
+<img src="screenshots/sxhkd1.png" width="100%">
+
+---
+---
+
+---
+---
+
+<img src="screenshots/sxhkd2.png" width="100%">
+
+---
+---
+
+---
+---
+
+<img src="screenshots/sxhkd3.png" width="100%">
+
+---
 ---
 
 # 📁 Method 1: Git Clone (Recommended)
-
+---
 ```bash
-git clone https://github.com/krishnaharry208/mybspwm.git
-
+git clone https://github.com/mycode205/mybspwm.git
 cd mybspwm
+bash install.sh
 
-chmod +x setup.sh
-
-./setup.sh
 ```
-
-✔ Best for editing or customizing configs  
-✔ Full control over setup
-
 ---
-
-# ⚡ Method 2: One Command (curl)
-
+# ⚡ Method 2: Quick Install
+---
 ```bash
-curl -fsSL https://raw.githubusercontent.com/krishnaharry208/mybspwm/main/setup.sh -o setup.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/mycode205/mybspwm/main/install.sh)
 
-chmod +x setup.sh
-
-./setup.sh
 ```
-
-✔ Fastest way to install  
-✔ Perfect for fresh systems
+---
+---
+✔ ⚡ Lightweight. Elegant. Productive.  
 
 ---
-
-# ⚙ What the Script Does
-
-- Sets up Debian repositories
-- Updates system packages
-- Installs required packages:
-
-  - bspwm
-  - sxhkd
-  - alacritty
-  - picom
-  - firefox-esr
-  - brightnessctl
-  - git
-  - curl
-  - xorg
-  - xinit
-
-- Installs and configures Picom
-- Enables rounded corners
-- Configures libinput touchpad settings
-- Enables tap-to-click
-- Enables natural scrolling
-- Creates BSPWM config folders
-- Sets `.xinitrc` to launch BSPWM
-- Makes everything ready to use
-
----
-
-# 🚀 How to Start
-
-```bash
-startx
-```
-
-This will launch BSPWM.
-
----
-
-# ⌨ Default Keybinds
-
-| Key | Action |
-|------|--------|
-| SUPER + ENTER | Open Terminal |
-| SUPER + W | Open Firefox |
-| SUPER + Q | Close Window |
-| SUPER + H/J/K/L | Focus Window |
-| SUPER + SHIFT + H/J/K/L | Move Window |
-| SUPER + 1-0 | Switch Workspace |
-
----
-
-# 📂 Structure
-
-```text
-mybspwm/
-├── setup.sh
-├── README.md
-├── bspwm/
-├── sxhkd/
-└── picom/
-```
-
----
-
-# ✅ Requirements
-
-- Fresh Debian install
-- Internet connection
-- User with sudo access
-
----
-
-# 🖼 Recommended Extras
-
-Optional packages you can install later:
-
-- Polybar
-- Eww
-- Rofi
-- Dunst
-- Nitrogen
-- Thunar
-
----
-
-# 📜 License
-
-MIT

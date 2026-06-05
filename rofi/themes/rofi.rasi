@@ -1,0 +1,101 @@
+/*******************************************************************************
+ * ROUNDED ONE-DARK SIDEBAR (Optimized for 1366x768)
+ *******************************************************************************/
+
+* {
+    /* Color Palette */
+    bg:          #1e222a;
+    bg-alt:      #252931;
+    fg:          #E5E9F0;
+    accent:      #61afef;
+    urgent:      #e06c75;
+    selected:    #3d4451;
+    border-col:  #61afef;
+    grey:        #565c64;
+
+    /* Font - Scaled down for 768p resolution */
+    font: "JetBrainsMono Nerd Font 10";
+}
+
+window {
+    width:            450px; /* Slimmer width for lower resolution */
+    height:           100%;
+    location:         west;
+    anchor:           west;
+    background-color: @bg;
+    border:           0px; /* Removed the right-side border line */
+}
+
+mainbox {
+    background-color: @bg;
+    children:         [ inputbar, listview ];
+    spacing:          10px;
+    padding:          15px 0px 0px 0px;
+}
+
+inputbar {
+    children:         [ prompt, entry ];
+    background-color: @bg-alt;
+    margin:           0px 15px;
+    padding:          8px 12px;
+    border-radius:    8px;
+    border:           1px;
+    border-color:     @selected;
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       @accent;
+    font:             "JetBrainsMono Nerd Font 11";
+    margin:           0px 4px 0px 2px; /* Balanced spacing for the icon */
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @fg;
+    placeholder:      "Search Apps...";
+    placeholder-color: @grey;
+}
+
+listview {
+    background-color: transparent;
+    margin:           5px 5px 0px 5px;
+    columns:          1;
+    lines:            12; /* Fits comfortably on 768px height without breaking */
+    fixed-height:     false;
+    scrollbar:        false;
+}
+
+element {
+    padding:          8px 12px;
+    margin:           0px 10px 4px 10px;
+    border-radius:    6px;
+    background-color: transparent;
+    text-color:       @fg;
+    cursor:           pointer;
+}
+
+element selected {
+    background-color: @selected;
+    text-color:       @accent;
+    border:           0px 0px 0px 3px; /* Clean left accent indicator */
+    border-color:     @accent;
+}
+
+element-icon {
+    size:             20px; /* Perfectly sizes icons to match the smaller text */
+    margin:           0px 10px 0px 0px;
+    background-color: transparent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+}
+
+/* Error/Urgent styles */
+element selected.urgent {
+    background-color: @urgent;
+    text-color:       @bg;
+}

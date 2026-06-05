@@ -1,0 +1,223 @@
+#=========================================================
+#                    WM INDEPENDENT HOTKEYS
+#=========================================================
+
+# Terminal Emulator
+super + Return
+    alacritty
+
+# Program Launcher
+super + d
+    rofi -show drun
+
+# Reload SXHKD Configuration
+super + Escape
+    pkill -USR1 -x sxhkd
+
+
+#=========================================================
+#                      BSPWM HOTKEYS
+#=========================================================
+
+# Reload BSPWM
+super + shift + r
+    bspc wm -r
+
+# Close Focused Window
+super + q
+    bspc node -c
+
+# Toggle Tiled / Monocle Layout
+super + m
+    bspc desktop -l next
+
+# Send Marked Node
+super + y
+    bspc node newest.marked.local -n newest.!automatic.local
+
+# Swap With Biggest Window
+super + g
+    bspc node -s biggest.window
+
+
+#=========================================================
+#                    DESKTOP NAVIGATION
+#=========================================================
+
+# Previous / Next Desktop
+super + bracket{left,right}
+    bspc desktop -f {prev,next}.local
+
+# Last Node / Desktop
+super + {grave,Tab}
+    bspc {node,desktop} -f last
+
+# Older / Newer Focus History
+super + {o,i}
+    bspc wm -h off; \
+    bspc node {older,newer} -f; \
+    bspc wm -h on
+
+# Focus / Send To Desktop
+super + {_,shift + }{1-9,0}
+    bspc {desktop -f,node -d} '^{1-9,10}'
+
+
+#=========================================================
+#                      PRESELECTION
+#=========================================================
+
+# Preselect Direction
+super + ctrl + {h,j,k,l}
+    bspc node -p {west,south,north,east}
+
+# Preselect Ratio
+super + ctrl + {1-9}
+    bspc node -o 0.{1-9}
+
+# Cancel Node Preselection
+super + ctrl + space
+    bspc node -p cancel
+
+# Cancel Desktop Preselection
+super + ctrl + shift + space
+    bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+
+#=========================================================
+#                     WINDOW RESIZE
+#=========================================================
+
+# Resize Window (Arrow Keys)
+super + shift + Left
+    bspc node -z left -20 0
+
+super + shift + Right
+    bspc node -z right 20 0
+
+super + shift + Up
+    bspc node -z top 0 -20
+
+super + shift + Down
+    bspc node -z bottom 0 20
+
+# Resize Window (Vim Keys)
+super + shift + h
+    bspc node -z left -20 0
+
+super + shift + l
+    bspc node -z right 20 0
+
+super + shift + k
+    bspc node -z top 0 -20
+
+super + shift + j
+    bspc node -z bottom 0 20
+
+# Reset Window Sizes
+super + r
+    bspc node @/ -B
+
+
+#=========================================================
+#                     WINDOW FOCUS
+#=========================================================
+
+# Focus Window (Arrow Keys)
+super + Left
+    bspc node -f west
+
+super + Right
+    bspc node -f east
+
+super + Up
+    bspc node -f north
+
+super + Down
+    bspc node -f south
+
+# Focus Window (Vim Keys)
+super + h
+    bspc node -f west
+
+super + l
+    bspc node -f east
+
+super + k
+    bspc node -f north
+
+super + j
+    bspc node -f south
+
+
+#=========================================================
+#                     AUDIO CONTROLS
+#=========================================================
+
+# Volume Up
+XF86AudioRaiseVolume
+    pactl set-sink-volume @DEFAULT_SINK@ +5%
+
+# Volume Down
+XF86AudioLowerVolume
+    pactl set-sink-volume @DEFAULT_SINK@ -5%
+
+# Toggle Mute
+XF86AudioMute
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Toggle Microphone Mute
+XF86AudioMicMute
+    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+
+#=========================================================
+#                   BRIGHTNESS CONTROLS
+#=========================================================
+
+# Brightness Up
+XF86MonBrightnessUp
+    brightnessctl set +5%
+
+# Brightness Down
+XF86MonBrightnessDown
+    brightnessctl set 5%-
+
+
+#=========================================================
+#                  APPLICATION SHORTCUTS
+#=========================================================
+
+# File Manager
+super + e
+    thunar
+
+# Web Browser
+super + b
+    brave-browser
+
+
+#=========================================================
+#                      WINDOW SWAP
+#=========================================================
+
+# Swap Windows (Vim Keys)
+super + ctrl + {h,j,k,l}
+    bspc node -s {west,south,north,east}
+
+# Swap Windows (Arrow Keys)
+super + ctrl + {Left,Down,Up,Right}
+    bspc node -s {west,south,north,east}
+
+
+#=========================================================
+#                       SCREENSHOTS
+#=========================================================
+
+# Area Screenshot
+super + shift + s
+    flameshot gui
+
+# Full Screen Screenshot
+Print
+    flameshot full -p ~/Pictures/Screenshots

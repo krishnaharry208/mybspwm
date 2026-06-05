@@ -1,0 +1,71 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "padding": {
+            "top": 2
+        }
+    },
+    "display": {
+        "separator": "  ",
+        "color": {
+            "keys": "magenta" // Change this to 'orange' or 'yellow' to match your image
+        }
+    },
+    "modules": [
+        // --- HARDWARE SECTION ---
+        {
+            "type": "custom",
+            "format": "┌─󰓗  {#34}HARDWARE {#}──────────────────────────────┐",
+            "color": "cyan"
+        },
+        { "type": "host", "key": "󰌢", "keyColor": "cyan" },
+        { "type": "cpu", "key": "󰻠", "keyColor": "cyan" },
+        { "type": "gpu", "key": "󰍛", "keyColor": "cyan" },
+        { "type": "memory", "key": "󰑭", "keyColor": "cyan" },
+        { "type": "disk", "key": "󰋊", "keyColor": "cyan" },
+        { "type": "display", "key": "󰍹", "keyColor": "cyan" },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────┘",
+            "color": "cyan"
+        },
+        "break",
+
+        // --- SOFTWARE SECTION ---
+        {
+            "type": "custom",
+            "format": "┌─󰀻  {#33}SOFTWARE {#}──────────────────────────────┐",
+            "color": "yellow"
+        },
+        { "type": "os", "key": "", "keyColor": "yellow" },
+        { "type": "kernel", "key": "󰒋", "keyColor": "yellow" },
+        { "type": "shell", "key": "", "keyColor": "yellow" },
+        { "type": "packages", "key": "󰮯", "keyColor": "yellow" },
+        { "type": "terminal", "key": "󰆍", "keyColor": "yellow" },
+        { "type": "wm", "key": "", "keyColor": "yellow" },
+        { "type": "de", "key": "󰧨", "keyColor": "yellow" },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────┘",
+            "color": "yellow"
+        },
+        "break",
+
+        // --- CUSTOMIZATION SECTION ---
+        {
+            "type": "custom",
+            "format": "┌─󰉼  {#32}CUSTOMIZATION {#}─────────────────────────┐",
+            "color": "green"
+        },
+        { "type": "theme", "key": "󰉼", "keyColor": "green" },
+        { "type": "icons", "key": "󰀻", "keyColor": "green" },
+        { "type": "wallpaper", "key": "󰸉", "keyColor": "green" },
+        { "type": "font", "key": "󰛖", "keyColor": "green" },
+        { "type": "cursor", "key": "󰇀", "keyColor": "green" },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────┘",
+            "color": "green"
+        }
+    ]
+}
