@@ -12,6 +12,8 @@ bspc config focus_follows_pointer true
 # Adjust this number until the windows sit perfectly below Polybar
 bspc config top_padding  0
 
+#  This helps to  when the window in fullscreen the polybar automatically hide
+bspc config manage_state false
 
 bspc config split_ratio          0.52
 bspc config borderless_monocle   true
