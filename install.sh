@@ -13,6 +13,9 @@ chmod +x "$SCRIPT_PATH" 2>/dev/null || true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_SUBDIR="$SCRIPT_DIR/scripts"
 
+# Source configurations are now stored in the central 'config' directory
+CONFIG_SRC_DIR="$SCRIPT_DIR/config"
+
 WALLPAPER="$HOME/Pictures/wallpapers/Debian.jpg"
 
 # ============================
@@ -33,18 +36,13 @@ show_status() {
     local BOLD="\033[1;37m"
     local RESET="\033[0m"
 
-    # Frame dimensions
-    local terminal_width=60
-
     case "$status_type" in
         "RUN")
             clear
-            # Calculate progress bar fill
             local bar_width=38
             local filled_chars=$(( (percent * bar_width) / 100 ))
             local empty_chars=$(( bar_width - filled_chars ))
             
-            # Construct the smooth progress line
             local progress_line=""
             if [ $filled_chars -gt 0 ]; then
                 progress_line+=$(printf '━%.0s' $(seq 1 $filled_chars))
@@ -53,7 +51,6 @@ show_status() {
                 progress_line+=$(printf '─%.0s' $(seq 1 $empty_chars))
             fi
 
-            # Format the Big Bold Percentage Readout
             local pct_text="[ ${percent}% ]"
             
             echo -e "${NORD_BLUE}╭──────────────────────────────────────────────────────────╮${RESET}"
@@ -85,7 +82,6 @@ show_status() {
     esac
 }
 
-# Animate progress safely (Pre-calculated sequence prevents blinking)
 animate_progress() {
     local task="$1"
     for p in 10 25 45 68 85 100; do
@@ -122,13 +118,11 @@ check_install() {
                 current_pct=$((current_pct + 5))
             fi
             
-            # Only trigger 'clear' and redraw if the percentage actually changed
             if [ "$current_pct" -ne "$last_pct" ]; then
                 show_status "$PKG" "RUN" "$current_pct"
                 last_pct=$current_pct
             fi
             
-            # Slower polling interval prevents terminal buffer thrashing
             sleep 0.4
         done
 
@@ -144,7 +138,7 @@ check_install() {
 }
 
 # ============================
-#  COPY
+#  COPY FUNCTION
 # ============================
 safe_cp() {
     local SRC=$1
@@ -181,7 +175,7 @@ do
 done
 
 # ==================================
-# INTERACTIVE FILE MANAGER MENU
+# INTERACTIVE SCRIPTS MENU
 # ==================================
 if [ -f "$SCRIPTS_SUBDIR/filemanager.sh" ]; then
     chmod +x "$SCRIPTS_SUBDIR/filemanager.sh"
@@ -191,9 +185,6 @@ else
     FAILED_FILES+=("filemanager.sh script missing")
 fi
 
-# ==================================
-# INTERACTIVE TERMINAL MENU
-# ==================================
 if [ -f "$SCRIPTS_SUBDIR/terminal.sh" ]; then
     chmod +x "$SCRIPTS_SUBDIR/terminal.sh"
     "$SCRIPTS_SUBDIR/terminal.sh"
@@ -202,9 +193,6 @@ else
     FAILED_FILES+=("terminal.sh script missing")
 fi
 
-# ==================================
-# INTERACTIVE BROWSER MENU
-# ==================================
 if [ -f "$SCRIPTS_SUBDIR/browser.sh" ]; then
     chmod +x "$SCRIPTS_SUBDIR/browser.sh"
     "$SCRIPTS_SUBDIR/browser.sh"
@@ -238,13 +226,10 @@ show_status "Touchpad configuration" "SUCCESS"
 # ============================
 mkdir -p "$HOME/.local/share/fonts"
 
-# Wrapping font operations safely inside a standalone block 
 (
     cd /tmp || exit
     
-    # ----------------------------
     # JetBrains Mono
-    # ----------------------------
     show_status "Downloading JetBrains Mono Fonts" "RUN" "30"
     if wget -q -O JetBrainsMono.zip https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip; then
         show_status "Extracting JetBrains Mono Fonts" "RUN" "75"
@@ -256,9 +241,7 @@ mkdir -p "$HOME/.local/share/fonts"
         show_status "JetBrains Mono Download" "FAIL"
     fi
 
-    # ----------------------------
     # FiraCode Nerd Font
-    # ----------------------------
     show_status "Downloading FiraCode Nerd Font" "RUN" "25"
     if wget -q -O FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip; then
         show_status "Extracting FiraCode Nerd Font" "RUN" "80"
@@ -271,9 +254,7 @@ mkdir -p "$HOME/.local/share/fonts"
         show_status "FiraCode Nerd Font Download" "FAIL"
     fi
 
-    # ----------------------------
     # MesloLGS NF
-    # ----------------------------
     show_status "Downloading MesloLGS NF Fonts" "RUN" "20"
     wget -q -O Meslo-Regular.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
     show_status "Downloading MesloLGS NF Fonts" "RUN" "50"
@@ -290,24 +271,28 @@ mkdir -p "$HOME/.local/share/fonts"
 )
 
 # ============================
-# CONFIG COPY
+# CONFIG COPY (FIXED PATHS)
 # ============================
 clear
 echo "[+] Copying configs..."
-mkdir -p ~/.config/{alacritty,fastfetch,bspwm,picom,polybar,rofi/themes,sxhkd}
 
-safe_cp "$SCRIPT_DIR/alacritty/alacritty.toml" ~/.config/alacritty/
-safe_cp "$SCRIPT_DIR/fastfetch/config.jsonc" ~/.config/fastfetch/
-safe_cp "$SCRIPT_DIR/bspwm/bspwmrc" ~/.config/bspwm/
-safe_cp "$SCRIPT_DIR/picom/picom.conf" ~/.config/picom/
-safe_cp "$SCRIPT_DIR/polybar/config.ini" ~/.config/polybar/
-safe_cp "$SCRIPT_DIR/polybar/launch.sh" ~/.config/polybar/
-safe_cp "$SCRIPT_DIR/rofi/config.rasi" ~/.config/rofi/
-safe_cp "$SCRIPT_DIR/rofi/themes/rofi.rasi" ~/.config/rofi/themes/
-safe_cp "$SCRIPT_DIR/sxhkd/sxhkdrc" ~/.config/sxhkd/
+# Ensure target directories exist inside ~/.config
+mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar,rofi/themes,sxhkd}
 
-chmod +x ~/.config/bspwm/bspwmrc 2>/dev/null || true
-chmod +x ~/.config/polybar/launch.sh 2>/dev/null || true
+# Copy dotfiles out of the source "$SCRIPT_DIR/config" folder
+safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/"
+safe_cp "$CONFIG_SRC_DIR/fastfetch/config.jsonc"   "$HOME/.config/fastfetch/"
+safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"             "$HOME/.config/bspwm/"
+safe_cp "$CONFIG_SRC_DIR/picom/picom.conf"         "$HOME/.config/picom/"
+safe_cp "$CONFIG_SRC_DIR/polybar/config.ini"       "$HOME/.config/polybar/"
+safe_cp "$CONFIG_SRC_DIR/polybar/launch.sh"        "$HOME/.config/polybar/"
+safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"         "$HOME/.config/rofi/"
+safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"   "$HOME/.config/rofi/themes/"
+safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"             "$HOME/.config/sxhkd/"
+
+# Make scripts executable inside target environment
+chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null || true
+chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
 
 # ============================
 # FASTFETCH SETUP
