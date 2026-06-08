@@ -201,6 +201,20 @@ else
     FAILED_FILES+=("browser.sh script missing")
 fi
 
+if [ -f "$SCRIPTS_SUBDIR/network.sh" ]; then
+    chmod +x "$SCRIPTS_SUBDIR/network.sh"
+else
+    echo "[✘] ERROR: network.sh not found in $SCRIPTS_SUBDIR"
+    FAILED_FILES+=("network.sh script missing")
+fi
+
+if [ -f "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh" ]; then
+    chmod +x "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"
+else
+    echo "[✘] ERROR: wifi.sh not found in $CONFIG_SRC_DIR/polybar/scripts/"
+    FAILED_FILES+=("wifi.sh script missing")
+fi
+
 # ============================
 # TOUCHPAD CONFIG
 # ============================
@@ -277,7 +291,7 @@ clear
 echo "[+] Copying configs..."
 
 # Ensure target directories exist inside ~/.config
-mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar,rofi/themes,sxhkd}
+mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,rofi/themes,sxhkd}
 
 # Copy dotfiles out of the source "$SCRIPT_DIR/config" folder
 safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/"
@@ -286,6 +300,7 @@ safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"             "$HOME/.config/bspwm/"
 safe_cp "$CONFIG_SRC_DIR/picom/picom.conf"         "$HOME/.config/picom/"
 safe_cp "$CONFIG_SRC_DIR/polybar/config.ini"       "$HOME/.config/polybar/"
 safe_cp "$CONFIG_SRC_DIR/polybar/launch.sh"        "$HOME/.config/polybar/"
+safe_cp "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"  "$HOME/.config/polybar/scripts/"
 safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"         "$HOME/.config/rofi/"
 safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"   "$HOME/.config/rofi/themes/"
 safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"             "$HOME/.config/sxhkd/"
@@ -293,6 +308,7 @@ safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"             "$HOME/.config/sxhkd/"
 # Make scripts executable inside target environment
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null || true
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
+chmod +x "$HOME/.config/polybar/scripts/wifi.sh" 2>/dev/null || true
 
 # ============================
 # FASTFETCH SETUP
@@ -345,6 +361,17 @@ EOF
 
 mkdir -p "$HOME/Pictures/wallpapers"
 safe_cp "$SCRIPT_DIR/wallpapers/Debian.jpg" "$HOME/Pictures/wallpapers/Debian.jpg"
+
+# ==================================
+# EXTERNAL NETWORK SCRIPT EXECUTION
+# ==================================
+echo "=================================="
+echo "   RUNNING NETWORK CONFIGURATION"
+echo "=================================="
+
+if [ -f "$SCRIPTS_SUBDIR/network.sh" ]; then
+    sudo "$SCRIPTS_SUBDIR/network.sh"
+fi
 
 # ============================
 # FINAL + REBOOT
