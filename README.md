@@ -107,6 +107,59 @@ bash <(curl -fsSL https://raw.githubusercontent.com/mycode205/mybspwm/main/insta
 ```
 ---
 ---
+
+
+
+
+---
+# This one is when the rofi and rofi theme selector icon not showing that time use this Command
+---
+```
+
+# 1. Force create the applications folder structure
+mkdir -p ~/.local/share/applications/
+
+# 2. Write the fresh, clean override file directly
+cat << 'EOF' > ~/.local/share/applications/rofi.desktop
+[Desktop Entry]
+Version=1.0
+Name=Rofi
+Comment=A window switcher, run dialog and dmenu replacement
+Exec=rofi -show drun
+Terminal=false
+Type=Application
+Icon=system-run
+Categories=System;Utility;
+EOF
+
+# 3. Create a clean override for the theme selector as well
+cat << 'EOF' > ~/.local/share/applications/rofi-theme-selector.desktop
+[Desktop Entry]
+Version=1.0
+Name=Rofi Theme Selector
+Comment=Choose a theme for Rofi
+Exec=rofi-theme-selector
+Terminal=false
+Type=Application
+Icon=preferences-system
+Categories=System;Utility;
+EOF
+
+# 4. Clear the rofi memory runtime cache dump
+rm -f ~/.cache/rofi*.cache
+
+# 5. Tell X11/Debian to immediately rebuild your local launcher app database
+update-desktop-database ~/.local/share/applications/
+
+# 6. Shut down any stuck background instances
+killall rofi
+
+
+
+```
+---
+
+
 ✔ ⚡ Lightweight. Elegant. Productive.  
 
 ---
