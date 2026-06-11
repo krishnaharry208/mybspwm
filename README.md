@@ -112,7 +112,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/mycode205/mybspwm/main/insta
 
 
 ---
-# This one is when the rofi and rofi theme selector icon not showing that time use this Command
+# "If the Rofi or Rofi Theme Selector icon is not showing, use this command:"
 ---
 ```
 
@@ -161,5 +161,4 @@ killall rofi
 
 
 ✔ ⚡ Lightweight. Elegant. Productive.  
-
 ---
