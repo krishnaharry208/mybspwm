@@ -31,3 +31,7 @@ bspc config gapless_monocle      true
 feh --bg-fill "$HOME/Pictures/wallpapers/Debian.jpg" &
 picom &
 polybar main &
+
+
+# Thunar File Manager Dialog Box Size
+bspc rule -a Xdg-desktop-portal-gtk state=floating rectangle=1100x1030+0+50 center=off

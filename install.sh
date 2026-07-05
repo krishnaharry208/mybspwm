@@ -12,8 +12,6 @@ chmod +x "$SCRIPT_PATH" 2>/dev/null || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_SUBDIR="$SCRIPT_DIR/scripts"
-
-# Source configurations are now stored in the central 'config' directory
 CONFIG_SRC_DIR="$SCRIPT_DIR/config"
 
 WALLPAPER="$HOME/Pictures/wallpapers/Debian.jpg"
@@ -33,6 +31,7 @@ show_status() {
     local NORD_GREEN="\033[1;32m"
     local NORD_RED="\033[1;31m"
     local NORD_YELLOW="\033[1;33m"
+    local NORD_PURPLE="\033[1;35m" 
     local BOLD="\033[1;37m"
     local RESET="\033[0m"
 
@@ -53,9 +52,15 @@ show_status() {
 
             local pct_text="[ ${percent}% ]"
             
+            # Dynamic coloring for the divider block based on current completion
+            local divider_color="${NORD_BLUE}"
+            if [ "$percent" -gt 30 ]; then
+                divider_color="${NORD_PURPLE}"
+            fi
+            
             echo -e "${NORD_BLUE}╭──────────────────────────────────────────────────────────╮${RESET}"
             printf "${NORD_BLUE}│${RESET}  ${BOLD}%-38s${RESET}   ${NORD_BLUE}%13s │\n" "DOWNLOADING & INSTALLING" "$pct_text"
-            echo -e "${NORD_BLUE}├──────────────────────────────────────────────────────────┤${RESET}"
+            echo -e "${divider_color}├──────────────────────────────────────────────────────────┤${RESET}"
             printf "${NORD_BLUE}│${RESET}  ${NORD_BLUE}➜ ${RESET}%-51s ${NORD_BLUE}│\n" "$task_name"
             printf "${NORD_BLUE}│${RESET}  ${NORD_BLUE}%s${RESET}  ${NORD_BLUE}│\n" "$progress_line"
             echo -e "${NORD_BLUE}╰──────────────────────────────────────────────────────────╯${RESET}"
@@ -90,12 +95,39 @@ animate_progress() {
     done
 }
 
+# ==============================================================================
+# PRE-INSTALLATION CRITICAL BASH CHECK
+# ==============================================================================
+clear
+echo "Checking for Bash source files in $SCRIPTS_SUBDIR/bash..."
+MISSING_BASH=0
+
+if [ ! -f "$SCRIPTS_SUBDIR/bash/.bashrc" ]; then
+    echo -e "\033[1;31m[✘] ERROR: '.bashrc' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
+    MISSING_BASH=1
+fi
+if [ ! -f "$SCRIPTS_SUBDIR/bash/.bash_aliases" ]; then
+    echo -e "\033[1;31m[✘] ERROR: '.bash_aliases' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
+    MISSING_BASH=1
+fi
+if [ ! -f "$SCRIPTS_SUBDIR/bash/.profile" ]; then
+    echo -e "\033[1;31m[✘] ERROR: '.profile' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
+    MISSING_BASH=1
+fi
+
+if [ $MISSING_BASH -eq 1 ]; then
+    echo ""
+    echo "Please verify your repository configuration setup layout."
+    ls -a "$SCRIPTS_SUBDIR/bash" 2>/dev/null || echo "Folder does not exist"
+    exit 1
+fi
+
 echo "=================================="
 echo "   BSPWM SMART SAFE INSTALLER"
 echo "=================================="
 
 # ============================
-# INSTALL FUNCTION (FIXED FLICKER)
+# INSTALL FUNCTION
 # ============================
 check_install() {
     local PKG=$1
@@ -285,15 +317,13 @@ mkdir -p "$HOME/.local/share/fonts"
 )
 
 # ============================
-# CONFIG COPY (FIXED PATHS)
+# CONFIG COPY
 # ============================
 clear
 echo "[+] Copying configs..."
 
-# Ensure target directories exist inside ~/.config
-mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,rofi/themes,sxhkd}
+mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,rofi/themes,sxhkd,bash}
 
-# Copy dotfiles out of the source "$SCRIPT_DIR/config" folder
 safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/"
 safe_cp "$CONFIG_SRC_DIR/fastfetch/config.jsonc"   "$HOME/.config/fastfetch/"
 safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"             "$HOME/.config/bspwm/"
@@ -305,22 +335,70 @@ safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"         "$HOME/.config/rofi/"
 safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"   "$HOME/.config/rofi/themes/"
 safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"             "$HOME/.config/sxhkd/"
 
-# Make scripts executable inside target environment
+# ==============================================================================
+# BASH SUBSYSTEM MIGRATION (FIXED FOR TARGET REPO STRUCTURE)
+# ==============================================================================
+echo "[+] Migrating Bash configurations from scripts/bash/..."
+
+declare -A BASH_FILE_MAP=(
+    [".bashrc"]="bashrc"
+    [".bash_aliases"]="bash_aliases"
+    [".profile"]="profile"
+)
+
+for src_name in "${!BASH_FILE_MAP[@]}"; do
+    src_file="$SCRIPTS_SUBDIR/bash/$src_name"
+    dest_name="${BASH_FILE_MAP[$src_name]}"
+    dest_file="$HOME/.config/bash/$dest_name"
+    
+    if [ -f "$src_file" ]; then
+        cp -f "$src_file" "$dest_file"
+        chmod +x "$dest_file"
+        echo "[✔] Bash Config Migrated: $src_name ──> $dest_file"
+    fi
+done
+
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null || true
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
 chmod +x "$HOME/.config/polybar/scripts/wifi.sh" 2>/dev/null || true
 
 # ============================
-# FASTFETCH SETUP
+# TRUE PATH REDIRECTION SETUP
 # ============================
-echo "[+] Configuring Fastfetch..."
-touch "$HOME/.bashrc"
-if ! grep -q "fastfetch" "$HOME/.bashrc"; then
-cat >> "$HOME/.bashrc" <<'EOF'
+echo "[+] Linking home directory environment targets straight to ~/.config/bash..."
+
+cat > "$HOME/.profile" <<'EOF'
+if [ -f "$HOME/.config/bash/profile" ]; then
+    . "$HOME/.config/bash/profile"
+fi
+EOF
+
+cat > "$HOME/.bashrc" <<'EOF'
+if [ -f "$HOME/.config/bash/bashrc" ]; then
+    . "$HOME/.config/bash/bashrc"
+fi
+EOF
+
+cat > "$HOME/.bash_aliases" <<'EOF'
+if [ -f "$HOME/.config/bash/bash_aliases" ]; then
+    . "$HOME/.config/bash/bash_aliases"
+fi
+EOF
+
+# ============================
+# FASTFETCH SETUP (APPEND MODE)
+# ============================
+echo "[+] Configuring Fastfetch execution hook safely..."
+if [ -f "$HOME/.config/bash/bashrc" ]; then
+    if ! grep -q "fastfetch" "$HOME/.config/bash/bashrc"; then
+cat >> "$HOME/.config/bash/bashrc" <<'EOF'
+
+# Run fastfetch automatically on terminal window startup
 if command -v fastfetch >/dev/null 2>&1; then
     fastfetch
 fi
 EOF
+    fi
 fi
 
 # ============================
