@@ -33,5 +33,9 @@ picom &
 polybar main &
 
 
-# Thunar File Manager Dialog Box Size
+#------------ Thunar File Manager Dialog Box Size ----------------------------------------
 bspc rule -a Xdg-desktop-portal-gtk state=floating rectangle=1100x1030+0+50 center=off
+# For 1366x768 resolution, you can use the following line instead:
+#bspc rule -a Xdg-desktop-portal-gtk state=floating rectangle=840x760+0+0 center=off
+
+#------------------------------------------------------------------------------------------

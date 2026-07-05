@@ -14,6 +14,9 @@ super + d
 super + Escape
     pkill -USR1 -x sxhkd
 
+# For wifi Connection
+super + w
+   ./.config/polybar/sripts/wifi.sh
 
 #=========================================================
 #                      BSPWM HOTKEYS
