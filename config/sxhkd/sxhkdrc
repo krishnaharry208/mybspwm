@@ -15,8 +15,16 @@ super + Escape
     pkill -USR1 -x sxhkd
 
 # For wifi Connection
-super + w
-   ./.config/polybar/sripts/wifi.sh
+#    super + w
+#        ./.config/polybar/sripts/wifi.sh
+
+# Open Wallpapers picker
+   super + w
+       .config/Wallpapers/Wallpaper.sh
+
+# Lock the Screen
+   super + l
+      i3lock -c 000000       
 
 #=========================================================
 #                      BSPWM HOTKEYS

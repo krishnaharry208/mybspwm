@@ -1,0 +1,59 @@
+configuration {
+    show-icons:                 true;
+}
+
+window {
+    width:                      900px;
+    anchor:                     center;
+    location:                   center;
+    border:                     0px;
+    border-radius:              16px;
+    background-color:           #0a0e14;
+}
+
+mainbox {
+    background-color:           transparent;
+    children:                   [ listview ];
+    padding:                    30px;
+}
+
+listview {
+    background-color:           transparent;
+    columns:                    5;
+    lines:                      1;
+    spacing:                    15px;
+    layout:                     vertical;
+    dynamic:                    true;
+}
+
+element {
+    background-color:           #101520;
+    text-color:                 #8a93a5;
+    orientation:                vertical;
+    border:                     2px;
+    border-color:               #161b25;
+    border-radius:              12px;
+    /* Explicit padding values fixed for older Rofi parser engines */
+    padding:                    35px;
+    children:                   [ element-icon, element-text ];
+    spacing:                    15px;
+}
+
+element selected {
+    background-color:           #141b2a;
+    border-color:               #4fa6ed;
+    text-color:                 #ffffff;
+}
+
+element-icon {
+    size:                       64px;
+    background-color:           transparent;
+    horizontal-align:           0.5;
+}
+
+element-text {
+    background-color:           transparent;
+    text-color:                 inherit;
+    horizontal-align:           0.5;
+    font:                       "JetBrains Mono Bold 11";
+}

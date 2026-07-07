@@ -1,0 +1,92 @@
+configuration {
+    show-icons:                 true;
+}
+
+window {
+    width:                      820px;       
+    anchor:                     center;
+    location:                   center;
+    border:                     0px;
+    border-radius:              18px;        
+    background-color:           #0a0e14;
+}
+
+mainbox {
+    background-color:           transparent;
+    children:                   [ inputbar, listview ]; /* Re-added inputbar to layout hierarchy */
+    spacing:                    16px;                   /* Gap between search text field and cards */
+    padding:                    24px;        
+}
+
+/* --- Search Input Styling --- */
+inputbar {
+    background-color:           #101520;                /* Matches the dark, clean card color */
+    border:                     2px;
+    border-color:               #161b25;
+    border-radius:              12px;
+    padding:                    12px 16px;
+    children:                   [ prompt, entry ];      /* Combines prefix title text with typing field */
+}
+
+prompt {
+    background-color:           transparent;
+    text-color:                 #b4befe;                /* Accent color for the prefix */
+    font:                       "JetBrains Mono Bold 11";
+    margin:                     0px 8px 0px 0px;
+}
+
+entry {
+    background-color:           transparent;
+    text-color:                 #ffffff;
+    font:                       "JetBrains Mono Regular 11";
+    placeholder:                "Search wallpaper...";  /* The placeholder text inside the input field */
+    placeholder-color:          #585b70;                /* Muted text shade for un-typed hint states */
+}
+
+/* --- Grid List Styling --- */
+listview {
+    background-color:           transparent;
+    columns:                    5;
+    lines:                      3;
+    spacing:                    14px;        
+    layout:                     vertical;
+    dynamic:                    true;
+    scrollbar:                  false;       
+}
+
+element {
+    background-color:           #101520;     
+    text-color:                 #8a93a5;
+    orientation:                vertical;
+    border:                     2px;
+    border-color:               #161b25;     
+    border-radius:              14px;        
+    padding:                    16px 12px;   
+    children:                   [ element-icon, element-text ];
+    spacing:                    10px;        
+    clip-to-bounds:             true;        
+}
+
+element selected {
+    background-color:           #101520;     
+    border-color:               #b4befe;     
+    border:                     2px;
+    text-color:                 #ffffff;     
+}
+
+element-icon {
+    size:                       76px;        
+    background-color:           transparent;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    expand:                     true;        
+}
+
+element-text {
+    background-color:           transparent;
+    text-color:                 inherit;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    font:                       "JetBrains Mono Bold 10"; 
+    expand:                     false;       
+}

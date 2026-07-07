@@ -322,18 +322,26 @@ mkdir -p "$HOME/.local/share/fonts"
 clear
 echo "[+] Copying configs..."
 
-mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,rofi/themes,sxhkd,bash}
+mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,polybar/rofi,polybar/icons,rofi/themes,sxhkd,bash,wallpapers}
 
-safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/"
-safe_cp "$CONFIG_SRC_DIR/fastfetch/config.jsonc"   "$HOME/.config/fastfetch/"
-safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"             "$HOME/.config/bspwm/"
-safe_cp "$CONFIG_SRC_DIR/picom/picom.conf"         "$HOME/.config/picom/"
-safe_cp "$CONFIG_SRC_DIR/polybar/config.ini"       "$HOME/.config/polybar/"
-safe_cp "$CONFIG_SRC_DIR/polybar/launch.sh"        "$HOME/.config/polybar/"
-safe_cp "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"  "$HOME/.config/polybar/scripts/"
-safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"         "$HOME/.config/rofi/"
-safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"   "$HOME/.config/rofi/themes/"
-safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"             "$HOME/.config/sxhkd/"
+safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml"               "$HOME/.config/alacritty/"
+safe_cp "$CONFIG_SRC_DIR/fastfetch/config.jsonc"                  "$HOME/.config/fastfetch/"
+safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"                          "$HOME/.config/bspwm/"
+safe_cp "$CONFIG_SRC_DIR/picom/picom.conf"                        "$HOME/.config/picom/"
+safe_cp "$CONFIG_SRC_DIR/polybar/config.ini"                      "$HOME/.config/polybar/"
+safe_cp "$CONFIG_SRC_DIR/polybar/launch.sh"                       "$HOME/.config/polybar/"
+safe_cp "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"                 "$HOME/.config/polybar/scripts/"
+safe_cp "$CONFIG_SRC_DIR/polybar/scripts/battery.sh"              "$HOME/.config/polybar/scripts/"
+safe_cp "$CONFIG_SRC_DIR/polybar/scripts/bluetooth.sh"            "$HOME/.config/polybar/scripts/"
+safe_cp "$CONFIG_SRC_DIR/polybar/scripts/powermenu.sh"            "$HOME/.config/polybar/scripts/"
+safe_cp "$CONFIG_SRC_DIR/polybar/rofi/wifi.rasi"                  "$HOME/.config/polybar/rofi/"
+safe_cp "$CONFIG_SRC_DIR/polybar/rofi/powermenu.rasi"             "$HOME/.config/polybar/rofi/"
+cp -r "$CONFIG_SRC_DIR/polybar/icons/."                           "$HOME/.config/polybar/icons/" 2>/dev/null && echo "[✔] Copied: polybar icons" || echo "[!] No polybar icons found (skipped)"
+safe_cp "$CONFIG_SRC_DIR/wallpapers/wallpaper.sh"                 "$HOME/.config/wallpapers/"
+safe_cp "$CONFIG_SRC_DIR/wallpapers/wallpaper.rasi"               "$HOME/.config/wallpapers/"
+safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"                        "$HOME/.config/rofi/"
+safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"                   "$HOME/.config/rofi/themes/"
+safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"                          "$HOME/.config/sxhkd/"
 
 # ==============================================================================
 # BASH SUBSYSTEM MIGRATION (FIXED FOR TARGET REPO STRUCTURE)
@@ -361,6 +369,10 @@ done
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null || true
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
 chmod +x "$HOME/.config/polybar/scripts/wifi.sh" 2>/dev/null || true
+chmod +x "$HOME/.config/polybar/scripts/battery.sh" 2>/dev/null || true
+chmod +x "$HOME/.config/polybar/scripts/bluetooth.sh" 2>/dev/null || true
+chmod +x "$HOME/.config/polybar/scripts/powermenu.sh" 2>/dev/null || true
+chmod +x "$HOME/.config/wallpapers/wallpaper.sh" 2>/dev/null || true
 
 # ============================
 # TRUE PATH REDIRECTION SETUP
@@ -438,7 +450,7 @@ fi
 EOF
 
 mkdir -p "$HOME/Pictures/wallpapers"
-safe_cp "$SCRIPT_DIR/wallpapers/Debian.jpg" "$HOME/Pictures/wallpapers/Debian.jpg"
+cp -f "$SCRIPT_DIR/wallpapers/"* "$HOME/Pictures/wallpapers/" 2>/dev/null && echo "[✔] Copied: all wallpapers" || true
 
 # ==================================
 # EXTERNAL NETWORK SCRIPT EXECUTION

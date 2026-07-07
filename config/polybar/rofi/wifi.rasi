@@ -1,0 +1,101 @@
+/* Rofi Wi-Fi Menu Theme - Right Aligned with Global Font Fix */
+
+configuration {
+    show-icons:         false;
+    sidebar-mode:       false;
+}
+
+* {
+    /* Global Font Declaration - Forces all text and icons to render via Nerd Fonts */
+    font:               "JetBrainsMono Nerd Font 11";
+    
+    background:         #1e1e2e;
+    background-alt:     #2e3440;
+    foreground:         #d9e0ee;
+    selected:           #7aa2f7;
+    urgent:             #f7768e;
+    
+    background-color:   transparent;
+    text-color:         @foreground;
+    
+    margin:             0;
+    padding:            0;
+}
+
+window {
+    width:              400px;   
+    height:             450px;   /* Reduced height slightly to avoid empty trailing space */
+    x-offset:           -10px;      
+    y-offset:           45px;    /* Tweak this to sit cleanly under your Polybar */
+    location:           northeast; 
+    anchor:             northeast; 
+    background-color:   @background;
+    border:             2px;     
+    border-color:       @selected;
+    border-radius:      8px;    
+}
+
+mainbox {
+    background-color:   @background;
+    children:           [ inputbar, listview ];
+    spacing:            10px;    
+    padding:            15px;    
+}
+
+inputbar {
+    background-color:   @background-alt;
+    text-color:         @foreground;
+    expand:             false;
+    border-radius:      6px;    
+    padding:            10px;    
+    children:           [ prompt, entry ]; /* Restores standard input layout */
+    spacing:            10px;
+}
+
+prompt {
+    background-color:   transparent;
+    text-color:         @selected;
+    font:               "JetBrainsMono Nerd Font Bold 11";
+}
+
+entry {
+    background-color:   transparent;
+    text-color:         @foreground;
+    placeholder:        "Search Networks...";
+    placeholder-color:  #565f89;
+}
+
+listview {
+    background-color:   @background;
+    columns:            1;          /* Fixed: Multi-columns break layout readability here */
+    lines:              10;         /* Fixed: Gives your menu space to list items vertically */
+    cycle:              true;
+    dynamic:            true;        
+    layout:             vertical;   /* Fixed: Forces a predictable top-to-bottom list */
+    spacing:            8px;      
+}
+
+element {
+    background-color:   transparent;
+    text-color:         @foreground;
+    orientation:        horizontal;
+    border-radius:      6px;    
+    padding:            8px;     
+}
+
+element-icon {
+    background-color:   transparent;
+    text-color:         inherit;
+    size:               0;        
+}
+
+element-text {
+    background-color:   transparent;
+    text-color:         inherit;
+    vertical-align:     0.5;        /* Fixed: Vertically aligns text within selection bars */
+}
+
+element selected {
+    background-color:   @selected;
+    text-color:         @background;
+}
