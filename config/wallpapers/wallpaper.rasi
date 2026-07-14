@@ -3,52 +3,53 @@ configuration {
 }
 
 window {
-    width:                      820px;       
+    width:                      960px;         /* Widened slightly to give 16:9 widescreen vibes */
     anchor:                     center;
     location:                   center;
-    border:                     0px;
-    border-radius:              18px;        
+    border:                     2px;
+    border-color:               #161b25;       
+    border-radius:              20px;        
     background-color:           #0a0e14;
 }
 
 mainbox {
     background-color:           transparent;
-    children:                   [ inputbar, listview ]; /* Re-added inputbar to layout hierarchy */
-    spacing:                    16px;                   /* Gap between search text field and cards */
-    padding:                    24px;        
+    children:                   [ inputbar, listview ]; 
+    spacing:                    24px;          
+    padding:                    32px;        
 }
 
 /* --- Search Input Styling --- */
 inputbar {
-    background-color:           #101520;                /* Matches the dark, clean card color */
+    background-color:           #101520;       
     border:                     2px;
     border-color:               #161b25;
-    border-radius:              12px;
-    padding:                    12px 16px;
-    children:                   [ prompt, entry ];      /* Combines prefix title text with typing field */
+    border-radius:              14px;
+    padding:                    14px 18px;
+    children:                   [ prompt, entry ];      
 }
 
 prompt {
     background-color:           transparent;
-    text-color:                 #b4befe;                /* Accent color for the prefix */
-    font:                       "JetBrains Mono Bold 11";
-    margin:                     0px 8px 0px 0px;
+    text-color:                 #b4befe;       
+    font:                       "JetBrains Mono Bold 12";
+    margin:                     0px 10px 0px 0px;
 }
 
 entry {
     background-color:           transparent;
     text-color:                 #ffffff;
-    font:                       "JetBrains Mono Regular 11";
-    placeholder:                "Search wallpaper...";  /* The placeholder text inside the input field */
-    placeholder-color:          #585b70;                /* Muted text shade for un-typed hint states */
+    font:                       "JetBrains Mono Regular 12";
+    placeholder:                "Search wallpaper...";  
+    placeholder-color:          #585b70;       
 }
 
 /* --- Grid List Styling --- */
 listview {
     background-color:           transparent;
-    columns:                    5;
-    lines:                      3;
-    spacing:                    14px;        
+    columns:                    4;             
+    lines:                      3;             
+    spacing:                    20px;          /* Clean spacing between grid items */
     layout:                     vertical;
     dynamic:                    true;
     scrollbar:                  false;       
@@ -58,24 +59,26 @@ element {
     background-color:           #101520;     
     text-color:                 #8a93a5;
     orientation:                vertical;
-    border:                     2px;
-    border-color:               #161b25;     
-    border-radius:              14px;        
-    padding:                    16px 12px;   
+    /* Match the selection border layout to completely eliminate layout shifting/shaking */
+    border:                     0px 3px 0px 3px; 
+    border-color:               transparent;   
+    border-radius:              16px;        
+    padding:                    16px 14px;     
     children:                   [ element-icon, element-text ];
-    spacing:                    10px;        
+    spacing:                    12px;        
     clip-to-bounds:             true;        
 }
 
 element selected {
-    background-color:           #101520;     
-    border-color:               #b4befe;     
-    border:                     2px;
+    background-color:           #161b25;       
+    border-color:               #b4befe;       /* Accent active color on left/right edges */
     text-color:                 #ffffff;     
+    border:                     0px 3px 0px 3px;
+    border-radius:              16px;
 }
 
 element-icon {
-    size:                       76px;        
+    size:                       136px;         /* Upgraded size for beautifully clear wallpaper previews */
     background-color:           transparent;
     horizontal-align:           0.5;
     vertical-align:             0.5;
@@ -87,6 +90,6 @@ element-text {
     text-color:                 inherit;
     horizontal-align:           0.5;
     vertical-align:             0.5;
-    font:                       "JetBrains Mono Bold 10"; 
+    font:                       "JetBrains Mono Bold 11"; 
     expand:                     false;       
 }
