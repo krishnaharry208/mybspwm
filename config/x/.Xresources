@@ -1,0 +1,121 @@
+!========================================================
+! CORE XRESOURCES
+!========================================================
+
+Xft.dpi: 96
+
+Xft.antialias: 1
+Xft.hinting: true
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+Xft.lcdfilter: lcddefault
+
+
+!========================================================
+! FONTS
+!========================================================
+
+#define FONT Fira Code
+#define ICON FiraCode Nerd Font Mono
+#define EMOJI Noto Color Emoji
+#define NERD_FONT Font Awesome 5 Free Solid
+
+#define FONT_SIZE 10
+#define ICON_SIZE 10
+#define EMOJI_SIZE 10
+#define NERD_SIZE 10
+
+
+!========================================================
+! URXVT FONTS
+!========================================================
+
+URxvt.font: xft:FONT:style=Medium:size=FONT_SIZE:antialias=true, \
+            xft:ICON:size=ICON_SIZE:antialias=true, \
+            xft:NERD_FONT:size=NERD_SIZE:antialias=true, \
+            xft:EMOJI:size=EMOJI_SIZE:antialias=true
+
+URxvt.boldFont: xft:FONT:style=Bold:size=FONT_SIZE
+URxvt.italicFont: xft:FONT:style=Italic:size=FONT_SIZE
+URxvt.boldItalicFont: xft:FONT:style=Bold Italic:size=FONT_SIZE
+
+
+!========================================================
+! COLORS (KEEP YOUR FILE)
+!========================================================
+
+#include ".Xnord"
+
+
+!========================================================
+! URXVT SETTINGS
+!========================================================
+
+URxvt.depth: 32
+URxvt*lineSpace: 0
+URxvt*letterSpace: -1
+
+URxvt.scrollBar: false
+URxvt.internalBorder: 20
+URxvt.geometry: 184x44
+
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: true
+
+URxvt.saveLines: 10000
+URxvt.loginShell: true
+
+URxvt.perl-ext: default,matcher,resize-font
+URxvt.url-launcher: linkhandler
+
+URxvt.matcher.button: 1
+
+URxvt.keysym.M-r: perl:matcher:last
+URxvt.keysym.M-l: perl:matcher:list
+URxvt.keysym.M-e: perl:matcher:select
+
+
+!========================================================
+! SCROLL FIX
+!========================================================
+
+URxvt.scrollTtyOutput: false
+URxvt.scrollWithBuffer: true
+URxvt.scrollTtyKeypress: true
+
+
+!========================================================
+! FONT RESIZE
+!========================================================
+
+URxvt.keysym.C-minus: resize-font:smaller
+URxvt.keysym.C-plus: resize-font:bigger
+URxvt.keysym.C-equal: resize-font:reset
+
+
+!========================================================
+! XTERM
+!========================================================
+
+xterm.vt100.termName: xterm-256color
+xterm.vt100.scrollBar: false
+xterm.vt100.cursorBlink: true
+xterm.vt100.selectToClipboard: true
+xterm.vt100.visualBell: false
+
+XTerm*faceSize: 10
+xterm.vt100.faceName: monospace
+
+XTerm*loginshell: true
+XTerm*savelines: 8192
+
+
+!========================================================
+! ST
+!========================================================
+
+st.font: monospace:pixelsize=18:antialias=true
+st.alpha: 1
+st.borderpx: 20
+st.cursorshape: 2
+st.boxdraw: 1

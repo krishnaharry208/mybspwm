@@ -14,17 +14,28 @@ super + d
 super + Escape
     pkill -USR1 -x sxhkd
 
-# For wifi Connection
-#    super + w
-#        ./.config/polybar/sripts/wifi.sh
+# For wifi connection
+#super + w
+ #    ./.config/polybar/scripts/wifi.sh
 
-# Open Wallpapers picker
-   super + w
-       .config/Wallpapers/Wallpaper.sh
+# Lock the screen
+super + l
+    i3lock -c 000000
 
-# Lock the Screen
-   super + l
-      i3lock -c 000000       
+# Open Rofi wallpaper picker
+super + w
+    /home/harry/.config/wallpapers/wallpaper.sh
+
+# Open powermenu
+ctrl + alt + Delete
+  .config/polybar/scripts/powermenu.sh
+
+# Bluetooth Menu
+super + x
+    ~/.local/bin/rofi-bluetooth
+
+super + p
+    ~/.config/bspwm/scripts/display.sh
 
 #=========================================================
 #                      BSPWM HOTKEYS
@@ -32,7 +43,7 @@ super + Escape
 
 # Reload BSPWM
 super + shift + r
-    bspc wm -r
+    bspc wm -r;
 
 # Close Focused Window
 super + q
@@ -165,22 +176,17 @@ super + j
 #                     AUDIO CONTROLS
 #=========================================================
 
-# Volume Up
+# Increase volume
 XF86AudioRaiseVolume
-    pactl set-sink-volume @DEFAULT_SINK@ +5%
+    amixer -q set Master 5%+
 
-# Volume Down
+# Decrease volume
 XF86AudioLowerVolume
-    pactl set-sink-volume @DEFAULT_SINK@ -5%
+    amixer -q set Master 5%-
 
-# Toggle Mute
+# Toggle mute
 XF86AudioMute
-    pactl set-sink-mute @DEFAULT_SINK@ toggle
-
-# Toggle Microphone Mute
-XF86AudioMicMute
-    pactl set-source-mute @DEFAULT_SOURCE@ toggle
-
+    amixer -q set Master toggle
 
 #=========================================================
 #                   BRIGHTNESS CONTROLS
