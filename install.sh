@@ -82,8 +82,8 @@ install_packages() {
         xorg xinit lxappearance papirus-icon-theme
         breeze-icon-theme bibata-cursor-theme fastfetch
         flameshot fonts-font-awesome fonts-inter
-        curl wget git unzip x11-xserver-utils libinput-tools
-        gnome-themes-extra gnome-themes-extra-data fontconfig
+        unzip x11-xserver-utils libinput-tools
+        fontconfig
     )
 
     local -a TO_INSTALL=()
