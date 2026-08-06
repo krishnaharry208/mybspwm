@@ -95,7 +95,7 @@ A fully automated installation script to deploy a clean, fast, and keyboard-driv
 ```bash
 git clone https://github.com/mycode205/mybspwm.git
 cd mybspwm
-bash install.sh
+sudo ./install.sh
 
 ```
 ---

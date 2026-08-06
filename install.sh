@@ -1,489 +1,413 @@
 #!/bin/bash
 
-# ============================
-# INSTALL MODE 
-# ============================
-
-FAILED_PACKAGES=()
-FAILED_FILES=()
-
-SCRIPT_PATH="$(realpath "$0")"
-chmod +x "$SCRIPT_PATH" 2>/dev/null || true
-
+# --- Configuration ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPTS_SUBDIR="$SCRIPT_DIR/scripts"
-CONFIG_SRC_DIR="$SCRIPT_DIR/config"
+CONFIG_SRC="$SCRIPT_DIR/config"
+SCRIPTS_SRC="$SCRIPT_DIR/scripts"
+BACKUP_DIR="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
 
-WALLPAPER="$HOME/Pictures/wallpapers/Debian.jpg"
+# --- Colors ---
+GREEN="\033[1;32m"
+RED="\033[1;31m"
+BLUE="\033[1;34m"
+YELLOW="\033[1;33m"
+RESET="\033[0m"
 
-# ============================
-# IMPROVED COOL COLORFUL UI
-# ============================
-show_status() {
-    local task_name="$1"
-    local status_type="$2" # "RUN", "SUCCESS", "FAIL", "REBOOT"
-    local percent="${3:-0}"
+# --- Error Tracking ---
+declare -a ERRORS=()
+
+log() { echo -e "${BLUE}[INFO]${RESET} $1"; }
+success() { echo -e "${GREEN}[✔]${RESET} $1"; }
+warn() { echo -e "${YELLOW}[!]${RESET} $1"; }
+fail() { 
+    echo -e "${RED}[✘]${RESET} $1"
+    ERRORS+=("$1")
+}
+
+# --- Helper Functions ---
+
+# Check internet connectivity
+check_internet() {
+    if ! ping -c 1 -W 2 8.8.8.8 &> /dev/null; then
+        fail "No internet connection. Please connect and try again."
+        return 1
+    fi
+    return 0
+}
+
+# Auto-bootstrap missing local config files if possible
+bootstrap_local_configs() {
+    log "Ensuring local configuration templates exist..."
+    mkdir -p "$CONFIG_SRC/x"
     
-    # ANSI Color Codes (Nord Palette)
-    local NORD_BG="\033[43m"
-    local NORD_POLAR="\033[1;30m"
-    local NORD_BLUE="\033[1;36m"
-    local NORD_GREEN="\033[1;32m"
-    local NORD_RED="\033[1;31m"
-    local NORD_YELLOW="\033[1;33m"
-    local NORD_PURPLE="\033[1;35m" 
-    local BOLD="\033[1;37m"
-    local RESET="\033[0m"
+    if [[ ! -f "$CONFIG_SRC/x/.Xresources" ]]; then
+        cat << 'EOF' > "$CONFIG_SRC/x/.Xresources"
+Xcursor.theme: Bibata-Modern-Classic
+Xcursor.size: 24
+EOF
+        warn "Created default template: config/x/.Xresources"
+    fi
 
-    case "$status_type" in
-        "RUN")
-            clear
-            local bar_width=38
-            local filled_chars=$(( (percent * bar_width) / 100 ))
-            local empty_chars=$(( bar_width - filled_chars ))
-            
-            local progress_line=""
-            if [ $filled_chars -gt 0 ]; then
-                progress_line+=$(printf '━%.0s' $(seq 1 $filled_chars))
-            fi
-            if [ $empty_chars -gt 0 ]; then
-                progress_line+=$(printf '─%.0s' $(seq 1 $empty_chars))
-            fi
-
-            local pct_text="[ ${percent}% ]"
-            
-            # Dynamic coloring for the divider block based on current completion
-            local divider_color="${NORD_BLUE}"
-            if [ "$percent" -gt 30 ]; then
-                divider_color="${NORD_PURPLE}"
-            fi
-            
-            echo -e "${NORD_BLUE}╭──────────────────────────────────────────────────────────╮${RESET}"
-            printf "${NORD_BLUE}│${RESET}  ${BOLD}%-38s${RESET}   ${NORD_BLUE}%13s │\n" "DOWNLOADING & INSTALLING" "$pct_text"
-            echo -e "${divider_color}├──────────────────────────────────────────────────────────┤${RESET}"
-            printf "${NORD_BLUE}│${RESET}  ${NORD_BLUE}➜ ${RESET}%-51s ${NORD_BLUE}│\n" "$task_name"
-            printf "${NORD_BLUE}│${RESET}  ${NORD_BLUE}%s${RESET}  ${NORD_BLUE}│\n" "$progress_line"
-            echo -e "${NORD_BLUE}╰──────────────────────────────────────────────────────────╯${RESET}"
-            ;;
-            
-        "SUCCESS")
-            echo -e "     ${NORD_GREEN}✔ Successfully Processed${RESET}\n"
-            sleep 0.15
-            ;;
-            
-        "FAIL")
-            echo -e "     ${NORD_RED}✘ Installation Failed${RESET}\n"
-            sleep 1
-            ;;
-            
-        "REBOOT")
-            clear
-            echo -e "${NORD_YELLOW}╭──────────────────────────────────────────────────────────╮${RESET}"
-            echo -e "${NORD_YELLOW}│${RESET}  [ 󰐥 ] SYSTEM REBOOT INITIATED                           ${NORD_YELLOW}│${RESET}"
-            echo -e "${NORD_YELLOW}├──────────────────────────────────────────────────────────┤${RESET}"
-            printf "${NORD_YELLOW}│${RESET}  ➜ %-52s ${NORD_YELLOW}│\n" "Syncing files and restarting in $percent seconds..."
-            echo -e "${NORD_YELLOW}╰──────────────────────────────────────────────────────────╯${RESET}"
-            ;;
-    esac
+    if [[ ! -f "$CONFIG_SRC/x/.Xnord" ]]; then
+        touch "$CONFIG_SRC/x/.Xnord"
+        warn "Created empty template: config/x/.Xnord"
+    fi
 }
 
-animate_progress() {
-    local task="$1"
-    for p in 10 25 45 68 85 100; do
-        show_status "$task" "RUN" "$p"
-        sleep 0.08
-    done
-}
-
-# ==============================================================================
-# PRE-INSTALLATION CRITICAL BASH CHECK
-# ==============================================================================
-clear
-echo "Checking for Bash source files in $SCRIPTS_SUBDIR/bash..."
-MISSING_BASH=0
-
-if [ ! -f "$SCRIPTS_SUBDIR/bash/.bashrc" ]; then
-    echo -e "\033[1;31m[✘] ERROR: '.bashrc' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
-    MISSING_BASH=1
-fi
-if [ ! -f "$SCRIPTS_SUBDIR/bash/.bash_aliases" ]; then
-    echo -e "\033[1;31m[✘] ERROR: '.bash_aliases' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
-    MISSING_BASH=1
-fi
-if [ ! -f "$SCRIPTS_SUBDIR/bash/.profile" ]; then
-    echo -e "\033[1;31m[✘] ERROR: '.profile' file is missing from $SCRIPTS_SUBDIR/bash/\033[0m"
-    MISSING_BASH=1
-fi
-
-if [ $MISSING_BASH -eq 1 ]; then
-    echo ""
-    echo "Please verify your repository configuration setup layout."
-    ls -a "$SCRIPTS_SUBDIR/bash" 2>/dev/null || echo "Folder does not exist"
-    exit 1
-fi
-
-echo "=================================="
-echo "   BSPWM SMART SAFE INSTALLER"
-echo "=================================="
-
-# ============================
-# INSTALL FUNCTION
-# ============================
-check_install() {
-    local PKG=$1
-    local EXTRA=${2:-}
-
-    if dpkg -l | grep -q " $PKG "; then
-        echo "[✔] $PKG already installed"
-        sleep 0.05
-    else
-        show_status "$PKG" "RUN" "0"
-
-        sudo apt install -y $EXTRA "$PKG" >/dev/null 2>&1 &
-        local pid=$!
-
-        local current_pct=0
-        local last_pct=0
-
-        while kill -0 $pid 2>/dev/null; do
-            if [ $current_pct -lt 95 ]; then
-                current_pct=$((current_pct + 5))
-            fi
-            
-            if [ "$current_pct" -ne "$last_pct" ]; then
-                show_status "$PKG" "RUN" "$current_pct"
-                last_pct=$current_pct
-            fi
-            
-            sleep 0.4
-        done
-
-        wait $pid
-        if [ $? -eq 0 ]; then
-            show_status "$PKG" "RUN" "100"
-            show_status "$PKG" "SUCCESS"
+# Backup existing config file if it exists
+backup_config() {
+    local dest="$1"
+    if [[ -e "$dest" ]]; then
+        local parent_dir
+        parent_dir="$(dirname "$dest")"
+        mkdir -p "$BACKUP_DIR/$parent_dir"
+        if cp -a "$dest" "$BACKUP_DIR/$dest"; then
+            warn "Backed up existing: $dest"
         else
-            show_status "$PKG" "FAIL"
-            FAILED_PACKAGES+=("$PKG")
+            fail "Failed to backup: $dest"
         fi
     fi
 }
 
-# ============================
-#  COPY FUNCTION
-# ============================
-safe_cp() {
-    local SRC=$1
-    local DEST=$2
+# Install packages 
+install_packages() {
+    local -a PACKAGES=(
+        bspwm sxhkd polybar picom rofi feh 
+        brightnessctl alsa-utils pulseaudio pavucontrol
+        xorg xinit lxappearance papirus-icon-theme
+        breeze-icon-theme bibata-cursor-theme fastfetch
+        flameshot fonts-font-awesome fonts-inter
+        curl git unzip x11-xserver-utils libinput-tools
+        gnome-themes-extra gnome-themes-extra-data
+    )
 
-    if cp -f "$SRC" "$DEST" 2>/dev/null; then
-        echo "[✔] Copied: $SRC"
+    local -a TO_INSTALL=()
+    local pkg
+
+    log "Checking for missing packages..."
+    for pkg in "${PACKAGES[@]}"; do
+        if ! dpkg -s "$pkg" &> /dev/null; then
+            TO_INSTALL+=("$pkg")
+        fi
+    done
+
+    if [[ ${#TO_INSTALL[@]} -eq 0 ]]; then
+        success "All required packages are already installed."
+        return 0
+    fi
+
+    log "Installing missing packages: ${TO_INSTALL[*]}"
+    if ! sudo apt update -y; then
+        fail "Failed to update package list"
+        return 1
+    fi
+
+    if ! sudo apt install -y "${TO_INSTALL[@]}"; then
+        fail "Failed to install one or more packages: ${TO_INSTALL[*]}"
+        return 1
+    fi
+    
+    success "Package installation complete."
+    return 0
+}
+
+# Clone git repo 
+clone_theme() {
+    local name="$1"
+    local url="$2"
+    local dest="$3"
+
+    if [[ -d "$dest" ]]; then
+        success "Theme '$name' already exists at $dest"
+        return 0
+    fi
+
+    log "Cloning $name theme..."
+    if ! git clone --depth=1 "$url" "$dest"; then
+        fail "Failed to clone $name theme"
+        return 1
+    fi
+    success "Cloned $name theme"
+    return 0
+}
+
+# Copy file with error collection
+safe_copy() {
+    local src="$1"
+    local dest="$2"
+    local desc="${3:-$src}"
+
+    if [[ ! -f "$src" ]]; then
+        fail "Source file missing: $src (Skipping $desc)"
+        return 1
+    fi
+
+    backup_config "$dest"
+    mkdir -p "$(dirname "$dest")"
+    
+    if cp -f "$src" "$dest"; then
+        success "Copied: $desc -> $dest"
+        return 0
     else
-        echo "[✘] FAILED COPY: $SRC"
-        FAILED_FILES+=("$SRC")
+        fail "Failed to copy: $desc"
+        return 1
     fi
 }
 
-# ============================
-# UPDATE SYSTEM
-# ============================
-show_status "Updating system package repositories" "RUN" "20"
-sudo apt update >/dev/null 2>&1
-show_status "Updating system package repositories" "RUN" "100"
-show_status "System update complete" "SUCCESS"
+# Copy directory
+safe_copy_dir() {
+    local src="$1"
+    local dest="$2"
+    local desc="${3:-$src}"
 
-# ============================
-# CORE PACKAGES
-# ============================
-for pkg in \
-    bspwm sxhkd polybar picom rofi feh \
-    brightnessctl alsa-utils pulseaudio pavucontrol \
-    xorg xinit lxappearance papirus-icon-theme \
-    breeze-icon-theme bibata-cursor-theme fastfetch flameshot \
-    fonts-font-awesome fonts-inter curl git unzip x11-xserver-utils \
-    libinput-tools
-do
-    check_install "$pkg"
-done
+    if [[ ! -d "$src" ]]; then
+        fail "Source directory missing: $src (Skipping $desc)"
+        return 1
+    fi
 
-# ==================================
-# INTERACTIVE SCRIPTS MENU
-# ==================================
-if [ -f "$SCRIPTS_SUBDIR/filemanager.sh" ]; then
-    chmod +x "$SCRIPTS_SUBDIR/filemanager.sh"
-    "$SCRIPTS_SUBDIR/filemanager.sh"
-else
-    echo "[✘] ERROR: filemanager.sh not found in $SCRIPTS_SUBDIR"
-    FAILED_FILES+=("filemanager.sh script missing")
-fi
+    backup_config "$dest"
+    mkdir -p "$dest"
+    
+    if cp -r "$src"/. "$dest"/ 2>/dev/null; then
+        success "Copied directory: $desc -> $dest"
+        return 0
+    else
+        fail "Failed to copy directory: $desc"
+        return 1
+    fi
+}
 
-if [ -f "$SCRIPTS_SUBDIR/terminal.sh" ]; then
-    chmod +x "$SCRIPTS_SUBDIR/terminal.sh"
-    "$SCRIPTS_SUBDIR/terminal.sh"
-else
-    echo "[✘] ERROR: terminal.sh not found in $SCRIPTS_SUBDIR"
-    FAILED_FILES+=("terminal.sh script missing")
-fi
+# Write to /etc with proper sudo and directory checks
+write_system_file() {
+    local path="$1"
+    local content="$2"
+    local desc="$3"
 
-if [ -f "$SCRIPTS_SUBDIR/browser.sh" ]; then
-    chmod +x "$SCRIPTS_SUBDIR/browser.sh"
-    "$SCRIPTS_SUBDIR/browser.sh"
-else
-    echo "[✘] ERROR: browser.sh not found in $SCRIPTS_SUBDIR"
-    FAILED_FILES+=("browser.sh script missing")
-fi
+    if ! sudo mkdir -p "$(dirname "$path")"; then
+        fail "Failed to create system directory for: $desc"
+        return 1
+    fi
 
-if [ -f "$SCRIPTS_SUBDIR/network.sh" ]; then
-    chmod +x "$SCRIPTS_SUBDIR/network.sh"
-else
-    echo "[✘] ERROR: network.sh not found in $SCRIPTS_SUBDIR"
-    FAILED_FILES+=("network.sh script missing")
-fi
+    if echo "$content" | sudo tee "$path" > /dev/null; then
+        success "Wrote system config: $desc"
+        return 0
+    else
+        fail "Failed to write system config: $desc"
+        return 1
+    fi
+}
 
-if [ -f "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh" ]; then
-    chmod +x "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"
-else
-    echo "[✘] ERROR: wifi.sh not found in $CONFIG_SRC_DIR/polybar/scripts/"
-    FAILED_FILES+=("wifi.sh script missing")
-fi
+# --- Main Execution ---
 
-# ============================
-# TOUCHPAD CONFIG
-# ============================
-animate_progress "Configuring touchpad options (libinput)"
-sudo mkdir -p /etc/X11/xorg.conf.d 2>/dev/null || true
+main() {
+    log "Starting BSPWM Installation (Error Collection Mode)..."
+    
+    # Bootstrap missing templates locally to prevent file missing errors
+    bootstrap_local_configs
 
-sudo tee /etc/X11/xorg.conf.d/30-touchpad.conf >/dev/null <<EOF
-Section "InputClass"
+    # Create directories first
+    log "Creating configuration directories..."
+    mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,polybar/rofi,polybar/icons,rofi/themes,sxhkd,bash,wallpapers,gtk-3.0}
+    mkdir -p "$HOME/.themes"
+    mkdir -p "$HOME/Pictures/wallpapers"
+    mkdir -p "$BACKUP_DIR"
+
+    # 1. Check Internet
+    if ! check_internet; then
+        warn "Proceeding without internet connection, some steps may fail."
+    fi
+
+    # 2. Install Packages
+    if ! install_packages; then
+        fail "Package installation encountered errors."
+    fi
+
+    # 3. Copy X Resources
+    log "Configuring X Resources..."
+    safe_copy "$CONFIG_SRC/x/.Xresources" "$HOME/.Xresources" "X Resources"
+    safe_copy "$CONFIG_SRC/x/.Xnord" "$HOME/.Xnord" "Nord Theme"
+    
+    if [[ -f "$HOME/.Xresources" ]]; then
+        if [[ -n "$DISPLAY" ]]; then
+            if xrdb -merge "$HOME/.Xresources"; then
+                success "X resources merged"
+            else
+                fail "Failed to merge X resources"
+            fi
+        else
+            warn "No active display found ($DISPLAY unset). Skipping live xrdb merge (will apply on next X session)."
+        fi
+    fi
+
+    # 4. Copy GTK 3.0
+    log "Configuring GTK 3.0..."
+    safe_copy_dir "$CONFIG_SRC/gtk-3.0" "$HOME/.config/gtk-3.0" "GTK 3.0 Settings"
+
+    # 5. Copy Application Configs
+    log "Copying application configurations..."
+    
+    safe_copy "$CONFIG_SRC/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml" "Alacritty"
+    safe_copy "$CONFIG_SRC/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc" "Fastfetch"
+    safe_copy "$CONFIG_SRC/bspwm/bspwmrc" "$HOME/.config/bspwm/bspwmrc" "Bspwm"
+    safe_copy "$CONFIG_SRC/picom/picom.conf" "$HOME/.config/picom/picom.conf" "Picom"
+    safe_copy "$CONFIG_SRC/rofi/config.rasi" "$HOME/.config/rofi/config.rasi" "Rofi Config"
+    safe_copy "$CONFIG_SRC/rofi/themes/rofi.rasi" "$HOME/.config/rofi/themes/rofi.rasi" "Rofi Theme"
+    safe_copy "$CONFIG_SRC/sxhkd/sxhkdrc" "$HOME/.config/sxhkd/sxhkdrc" "Sxhkd"
+
+    safe_copy "$CONFIG_SRC/polybar/config.ini" "$HOME/.config/polybar/config.ini" "Polybar Config"
+    safe_copy "$CONFIG_SRC/polybar/launch.sh" "$HOME/.config/polybar/launch.sh" "Polybar Launch"
+    safe_copy_dir "$CONFIG_SRC/polybar/scripts" "$HOME/.config/polybar/scripts" "Polybar Scripts"
+    safe_copy_dir "$CONFIG_SRC/polybar/rofi" "$HOME/.config/polybar/rofi" "Polybar Rofi"
+    safe_copy_dir "$CONFIG_SRC/polybar/icons" "$HOME/.config/polybar/icons" "Polybar Icons"
+
+    if [[ -d "$CONFIG_SRC/wallpapers" ]]; then
+        safe_copy_dir "$CONFIG_SRC/wallpapers" "$HOME/.config/wallpapers" "Config Wallpapers"
+    fi
+    if [[ -d "$SCRIPT_DIR/wallpapers" ]]; then
+        safe_copy_dir "$SCRIPT_DIR/wallpapers" "$HOME/Pictures/wallpapers" "Pictures Wallpapers"
+    fi
+
+    # 6. Bash Configuration
+    log "Migrating Bash configurations..."
+    mkdir -p "$HOME/.config/bash"
+    
+    declare -A BASH_MAP=(
+        ["bash/.bashrc"]="bashrc"
+        ["bash/.bash_aliases"]="bash_aliases"
+        ["bash/.profile"]="profile"
+    )
+
+    for src_rel in "${!BASH_MAP[@]}"; do
+        local dest_name="${BASH_MAP[$src_rel]}"
+        local src_path="$SCRIPTS_SRC/$src_rel"
+        local dest_path="$HOME/.config/bash/$dest_name"
+        
+        safe_copy "$src_path" "$dest_path" "Bash $dest_name"
+    done
+
+    backup_config "$HOME/.profile"
+    backup_config "$HOME/.bashrc"
+    backup_config "$HOME/.bash_aliases"
+
+    cat > "$HOME/.profile" <<'EOF'
+if [ -f "$HOME/.config/bash/profile" ]; then . "$HOME/.config/bash/profile"; fi
+EOF
+
+    cat > "$HOME/.bashrc" <<'EOF'
+if [ -f "$HOME/.config/bash/bashrc" ]; then . "$HOME/.config/bash/bashrc"; fi
+EOF
+
+    cat > "$HOME/.bash_aliases" <<'EOF'
+if [ -f "$HOME/.config/bash/bash_aliases" ]; then . "$HOME/.config/bash/bash_aliases"; fi
+EOF
+
+    if command -v fastfetch &> /dev/null && ! grep -q "fastfetch" "$HOME/.config/bash/bashrc" 2>/dev/null; then
+        echo -e "\n# Auto-run fastfetch\n[ -x /usr/bin/fastfetch ] && fastfetch" >> "$HOME/.config/bash/bashrc"
+        success "Added fastfetch to bashrc"
+    fi
+
+    # 7. Set Permissions
+    log "Setting executable permissions..."
+    local exec_files=(
+        "$HOME/.config/bspwm/bspwmrc"
+        "$HOME/.config/polybar/launch.sh"
+        "$HOME/.config/polybar/scripts/"*.sh
+        "$HOME/.config/wallpapers/wallpaper.sh"
+    )
+
+    for file in "${exec_files[@]}"; do
+        for f in $file; do
+            if [[ -f "$f" ]]; then
+                if chmod +x "$f"; then
+                    : # Silent success
+                else
+                    fail "Failed to set permissions on: $f"
+                fi
+            fi
+        done
+    done
+    success "Permissions set"
+
+    # 8. System Configs
+    log "Configuring system files..."
+    
+    write_system_file "/etc/X11/xorg.conf.d/30-touchpad.conf" 'Section "InputClass"
     Identifier "Touchpad"
     MatchIsTouchpad "on"
     Driver "libinput"
-
     Option "Tapping" "on"
     Option "NaturalScrolling" "true"
     Option "DisableWhileTyping" "true"
-    Option "ClickMethod" "clickfinger"
-EndSection
-EOF
-show_status "Touchpad configuration" "SUCCESS"
+EndSection' "Touchpad Config"
 
-# ============================
-#  FONTS 
-# ============================
-mkdir -p "$HOME/.local/share/fonts"
-
-(
-    cd /tmp || exit
-    
-    # JetBrains Mono
-    show_status "Downloading JetBrains Mono Fonts" "RUN" "30"
-    if wget -q -O JetBrainsMono.zip https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip; then
-        show_status "Extracting JetBrains Mono Fonts" "RUN" "75"
-        unzip -oq JetBrainsMono.zip -d JetBrainsMono
-        cp JetBrainsMono/fonts/ttf/*.ttf "$HOME/.local/share/fonts/" 2>/dev/null || true
-        show_status "JetBrains Mono" "RUN" "100"
-        show_status "JetBrains Mono" "SUCCESS"
-    else
-        show_status "JetBrains Mono Download" "FAIL"
-    fi
-
-    # FiraCode Nerd Font
-    show_status "Downloading FiraCode Nerd Font" "RUN" "25"
-    if wget -q -O FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip; then
-        show_status "Extracting FiraCode Nerd Font" "RUN" "80"
-        mkdir -p FiraCodeTemp
-        unzip -oq FiraCode.zip -d FiraCodeTemp
-        find FiraCodeTemp -name "*.ttf" -exec cp {} "$HOME/.local/share/fonts/" \; >/dev/null 2>&1
-        show_status "FiraCode Nerd Font" "RUN" "100"
-        show_status "FiraCode Nerd Font" "SUCCESS"
-    else
-        show_status "FiraCode Nerd Font Download" "FAIL"
-    fi
-
-    # MesloLGS NF
-    show_status "Downloading MesloLGS NF Fonts" "RUN" "20"
-    wget -q -O Meslo-Regular.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
-    show_status "Downloading MesloLGS NF Fonts" "RUN" "50"
-    wget -q -O Meslo-Bold.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf
-    show_status "Downloading MesloLGS NF Fonts" "RUN" "75"
-    wget -q -O Meslo-Italic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf
-    wget -q -O Meslo-BoldItalic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf
-
-    cp Meslo*.ttf "$HOME/.local/share/fonts/" 2>/dev/null || true
-    show_status "MesloLGS NF Fonts" "RUN" "100"
-    show_status "MesloLGS NF Fonts" "SUCCESS"
-
-    fc-cache -f >/dev/null 2>&1
-)
-
-# ============================
-# CONFIG COPY
-# ============================
-clear
-echo "[+] Copying configs..."
-
-mkdir -p "$HOME/.config"/{alacritty,fastfetch,bspwm,picom,polybar/scripts,polybar/rofi,polybar/icons,rofi/themes,sxhkd,bash,wallpapers}
-
-safe_cp "$CONFIG_SRC_DIR/alacritty/alacritty.toml"               "$HOME/.config/alacritty/"
-safe_cp "$CONFIG_SRC_DIR/fastfetch/config.jsonc"                  "$HOME/.config/fastfetch/"
-safe_cp "$CONFIG_SRC_DIR/bspwm/bspwmrc"                          "$HOME/.config/bspwm/"
-safe_cp "$CONFIG_SRC_DIR/picom/picom.conf"                        "$HOME/.config/picom/"
-safe_cp "$CONFIG_SRC_DIR/polybar/config.ini"                      "$HOME/.config/polybar/"
-safe_cp "$CONFIG_SRC_DIR/polybar/launch.sh"                       "$HOME/.config/polybar/"
-safe_cp "$CONFIG_SRC_DIR/polybar/scripts/wifi.sh"                 "$HOME/.config/polybar/scripts/"
-safe_cp "$CONFIG_SRC_DIR/polybar/scripts/battery.sh"              "$HOME/.config/polybar/scripts/"
-safe_cp "$CONFIG_SRC_DIR/polybar/scripts/bluetooth.sh"            "$HOME/.config/polybar/scripts/"
-safe_cp "$CONFIG_SRC_DIR/polybar/scripts/powermenu.sh"            "$HOME/.config/polybar/scripts/"
-safe_cp "$CONFIG_SRC_DIR/polybar/rofi/wifi.rasi"                  "$HOME/.config/polybar/rofi/"
-safe_cp "$CONFIG_SRC_DIR/polybar/rofi/powermenu.rasi"             "$HOME/.config/polybar/rofi/"
-cp -r "$CONFIG_SRC_DIR/polybar/icons/."                           "$HOME/.config/polybar/icons/" 2>/dev/null && echo "[✔] Copied: polybar icons" || echo "[!] No polybar icons found (skipped)"
-safe_cp "$CONFIG_SRC_DIR/wallpapers/wallpaper.sh"                 "$HOME/.config/wallpapers/"
-safe_cp "$CONFIG_SRC_DIR/wallpapers/wallpaper.rasi"               "$HOME/.config/wallpapers/"
-safe_cp "$CONFIG_SRC_DIR/rofi/config.rasi"                        "$HOME/.config/rofi/"
-safe_cp "$CONFIG_SRC_DIR/rofi/themes/rofi.rasi"                   "$HOME/.config/rofi/themes/"
-safe_cp "$CONFIG_SRC_DIR/sxhkd/sxhkdrc"                          "$HOME/.config/sxhkd/"
-
-# ==============================================================================
-# BASH SUBSYSTEM MIGRATION (FIXED FOR TARGET REPO STRUCTURE)
-# ==============================================================================
-echo "[+] Migrating Bash configurations from scripts/bash/..."
-
-declare -A BASH_FILE_MAP=(
-    [".bashrc"]="bashrc"
-    [".bash_aliases"]="bash_aliases"
-    [".profile"]="profile"
-)
-
-for src_name in "${!BASH_FILE_MAP[@]}"; do
-    src_file="$SCRIPTS_SUBDIR/bash/$src_name"
-    dest_name="${BASH_FILE_MAP[$src_name]}"
-    dest_file="$HOME/.config/bash/$dest_name"
-    
-    if [ -f "$src_file" ]; then
-        cp -f "$src_file" "$dest_file"
-        chmod +x "$dest_file"
-        echo "[✔] Bash Config Migrated: $src_name ──> $dest_file"
-    fi
-done
-
-chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null || true
-chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
-chmod +x "$HOME/.config/polybar/scripts/wifi.sh" 2>/dev/null || true
-chmod +x "$HOME/.config/polybar/scripts/battery.sh" 2>/dev/null || true
-chmod +x "$HOME/.config/polybar/scripts/bluetooth.sh" 2>/dev/null || true
-chmod +x "$HOME/.config/polybar/scripts/powermenu.sh" 2>/dev/null || true
-chmod +x "$HOME/.config/wallpapers/wallpaper.sh" 2>/dev/null || true
-
-# ============================
-# TRUE PATH REDIRECTION SETUP
-# ============================
-echo "[+] Linking home directory environment targets straight to ~/.config/bash..."
-
-cat > "$HOME/.profile" <<'EOF'
-if [ -f "$HOME/.config/bash/profile" ]; then
-    . "$HOME/.config/bash/profile"
-fi
-EOF
-
-cat > "$HOME/.bashrc" <<'EOF'
-if [ -f "$HOME/.config/bash/bashrc" ]; then
-    . "$HOME/.config/bash/bashrc"
-fi
-EOF
-
-cat > "$HOME/.bash_aliases" <<'EOF'
-if [ -f "$HOME/.config/bash/bash_aliases" ]; then
-    . "$HOME/.config/bash/bash_aliases"
-fi
-EOF
-
-# ============================
-# FASTFETCH SETUP (APPEND MODE)
-# ============================
-echo "[+] Configuring Fastfetch execution hook safely..."
-if [ -f "$HOME/.config/bash/bashrc" ]; then
-    if ! grep -q "fastfetch" "$HOME/.config/bash/bashrc"; then
-cat >> "$HOME/.config/bash/bashrc" <<'EOF'
-
-# Run fastfetch automatically on terminal window startup
-if command -v fastfetch >/dev/null 2>&1; then
-    fastfetch
-fi
-EOF
-    fi
-fi
-
-# ============================
-# GTK THEMES
-# ============================
-mkdir -p "$HOME/.themes"
-if [ ! -d "$HOME/.themes/Nordic" ]; then
-    show_status "Cloning Nordic GTK Theme" "RUN" "40"
-    git clone https://github.com/EliverLara/Nordic.git "$HOME/.themes/Nordic" >/dev/null 2>&1
-    show_status "Cloning Nordic GTK Theme" "RUN" "100"
-    show_status "Nordic Theme" "SUCCESS"
-fi
-
-if [ ! -d "$HOME/.themes/Dracula" ]; then
-    show_status "Cloning Dracula GTK Theme" "RUN" "40"
-    git clone https://github.com/dracula/gtk.git "$HOME/.themes/Dracula" >/dev/null 2>&1
-    show_status "Cloning Dracula GTK Theme" "RUN" "100"
-    show_status "Dracula Theme" "SUCCESS"
-fi
-
-# ============================
-# SERVICES & ASSETS
-# ============================
-pulseaudio --start 2>/dev/null || true
-
-cat > "$HOME/.xinitrc" <<EOF
+    backup_config "$HOME/.xinitrc"
+    cat > "$HOME/.xinitrc" <<'EOF'
 #!/bin/sh
-pulseaudio --start &
+xrdb -merge "$HOME/.Xresources"
 exec dbus-launch --sh-syntax --exit-with-session bspwm
 EOF
-chmod +x "$HOME/.xinitrc"
+    chmod +x "$HOME/.xinitrc"
 
-cat > "$HOME/.bash_profile" <<'EOF'
+    backup_config "$HOME/.bash_profile"
+    cat > "$HOME/.bash_profile" <<'EOF'
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec startx
 fi
 EOF
 
-mkdir -p "$HOME/Pictures/wallpapers"
-cp -f "$SCRIPT_DIR/wallpapers/"* "$HOME/Pictures/wallpapers/" 2>/dev/null && echo "[✔] Copied: all wallpapers" || true
+    # 9. GTK Themes
+    log "Installing GTK Themes..."
+    clone_theme "Nordic" "https://github.com/EliverLara/Nordic.git" "$HOME/.themes/Nordic"
+    clone_theme "Dracula" "https://github.com/dracula/gtk.git" "$HOME/.themes/Dracula"
 
-# ==================================
-# EXTERNAL NETWORK SCRIPT EXECUTION
-# ==================================
-echo "=================================="
-echo "   RUNNING NETWORK CONFIGURATION"
-echo "=================================="
+    # 10. Run Helper Scripts
+    log "Running helper scripts..."
+    for script in filemanager.sh terminal.sh browser.sh network.sh; do
+        if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+            chmod +x "$SCRIPTS_SRC/$script"
+            log "Executing $script..."
+            if ! "$SCRIPTS_SRC/$script"; then
+                fail "Script $script exited with errors"
+            fi
+        fi
+    done
 
-if [ -f "$SCRIPTS_SUBDIR/network.sh" ]; then
-    sudo "$SCRIPTS_SUBDIR/network.sh"
-fi
+    # --- FINAL SUMMARY ---
+    echo ""
+    echo "=============================================="
+    if [[ ${#ERRORS[@]} -eq 0 ]]; then
+        success "Installation Complete! No errors found."
+    else
+        warn "Installation Finished with ERRORS!"
+        echo "=============================================="
+        echo "The following steps failed:"
+        echo "=============================================="
+        local i=1
+        for err in "${ERRORS[@]}"; do
+            echo "  $i. $err"
+            ((i++))
+        done
+        echo "=============================================="
+    fi
+    log "Backups stored in: $BACKUP_DIR"
+    echo ""
+    
+   # --- OPTIONAL REBOOT PROMPT ---
+    read -rp "Would you like to reboot your system now? (y/N): " choice
+    case "$choice" in 
+        [yY][eE][sS]|[yY])
+            log "Rebooting system in 3 seconds..."
+            for i in 3 2 1; do
+                echo -e "${YELLOW}$i...${RESET}"
+                sleep 1
+            done
+            sudo reboot
+            ;;
+        *)
+            log "Reboot skipped. Please remember to restart your session later."
+            ;;
+    esac
+}
 
-# ============================
-# FINAL + REBOOT
-# ============================
-clear
-echo "=================================="
-echo " INSTALL COMPLETE"
-echo "=================================="
-echo "✔ All elements deployed correctly"
-echo "=================================="
-
-if [ ${#FAILED_PACKAGES[@]} -gt 0 ] || [ ${#FAILED_FILES[@]} -gt 0 ]; then
-    printf 'Errors found inside packages: %s\n' "${FAILED_PACKAGES[*]}"
-    printf 'Errors found inside files: %s\n' "${FAILED_FILES[*]}"
-    echo "Press Enter to force reboot..."
-    read -r
-fi
-
-sync
-for i in 5 4 3 2 1; do
-    show_status "" "REBOOT" "$i"
-    sleep 1
-done
-
-sudo reboot
+# Run main
+main "$@"
