@@ -24,7 +24,7 @@ super + l
 
 # Open Rofi wallpaper picker
 super + w
-    /home/harry/.config/wallpapers/wallpaper.sh
+    ./.config/wallpapers/wallpaper.sh
 
 # Open powermenu
 ctrl + alt + Delete
