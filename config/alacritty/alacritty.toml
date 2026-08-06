@@ -9,15 +9,14 @@ opacity = 0.92
 blur = true
 
 [font]
-size = 11.0
+size = 12.0
 
-normal = { family = "JetBrains Mono", style = "Regular" }
-bold   = { family = "JetBrains Mono", style = "Bold" }
-italic = { family = "JetBrains Mono", style = "Italic" }
+normal = { family = "MesloLGS Nerd Font", style = "Regular" }
+bold   = { family = "MesloLGS Nerd Font", style = "Bold" }
+italic = { family = "MesloLGS Nerd Font", style = "Italic" }
+bold_italic = { family = "MesloLGS Nerd Font", style = "Bold Italic" }
 
 [font.offset]
-# This adds 2 pixels of space between lines. 
-# This is what makes it look "Clean" rather than "Cramped"
 y = 2
 
 

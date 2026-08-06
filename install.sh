@@ -82,8 +82,8 @@ install_packages() {
         xorg xinit lxappearance papirus-icon-theme
         breeze-icon-theme bibata-cursor-theme fastfetch
         flameshot fonts-font-awesome fonts-inter
-        unzip x11-xserver-utils libinput-tools
-        fontconfig
+        curl wget git unzip x11-xserver-utils libinput-tools
+        fontconfig xdg-user-dirs-update
     )
 
     local -a TO_INSTALL=()
@@ -398,7 +398,11 @@ EOF
     MatchIsTouchpad "on"
     Driver "libinput"
     Option "Tapping" "on"
+    Option "TappingButtonMap" "lrm"
+    Option "NaturalScrolling" "true"
     Option "DisableWhileTyping" "true"
+    Option "ClickMethod" "clickfinger"
+    Option "AccelSpeed" "0.3"
 EndSection' "Touchpad Config"
 
     backup_config "$REAL_HOME/.xinitrc"
