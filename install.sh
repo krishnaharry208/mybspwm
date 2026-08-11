@@ -79,7 +79,7 @@ install_packages() {
     # NOTE: xdg-user-dirs-update is NOT a real package name on Debian/Ubuntu.
     # The xdg-user-dirs-update binary ships inside the "xdg-user-dirs" package.
     local -a PACKAGES=(
-        bspwm sxhkd polybar picom rofi feh 
+        bspwm sxhkd polybar picom rofi feh dunst libnotify-bin
         brightnessctl alsa-utils pulseaudio pavucontrol
         xorg xinit lxappearance papirus-icon-theme
         breeze-icon-theme bibata-cursor-theme fastfetch
