@@ -76,6 +76,8 @@ backup_config() {
 }
 
 install_packages() {
+    # NOTE: xdg-user-dirs-update is NOT a real package name on Debian/Ubuntu.
+    # The xdg-user-dirs-update binary ships inside the "xdg-user-dirs" package.
     local -a PACKAGES=(
         bspwm sxhkd polybar picom rofi feh 
         brightnessctl alsa-utils pulseaudio pavucontrol
@@ -83,10 +85,11 @@ install_packages() {
         breeze-icon-theme bibata-cursor-theme fastfetch
         flameshot fonts-font-awesome fonts-inter
         curl wget git unzip x11-xserver-utils libinput-tools
-        fontconfig xdg-user-dirs-update
+        fontconfig xdg-user-dirs
     )
 
     local -a TO_INSTALL=()
+    local -a FAILED=()
     local pkg
 
     log "Checking for missing packages..."
@@ -104,14 +107,28 @@ install_packages() {
     log "Installing missing packages: ${TO_INSTALL[*]}"
     if ! sudo apt update -y; then
         fail "Failed to update package list"
+    fi
+
+    # Install one package at a time instead of one big batch command.
+    # apt install is atomic across the whole list: a single unknown/renamed
+    # package name (e.g. one missing from your distro's repos or version)
+    # would otherwise abort the ENTIRE install and silently skip every
+    # other valid package too. Installing individually means one bad name
+    # only fails itself and gets reported, instead of blocking everything.
+    for pkg in "${TO_INSTALL[@]}"; do
+        if sudo apt install -y "$pkg"; then
+            success "Installed: $pkg"
+        else
+            fail "Failed to install package: $pkg"
+            FAILED+=("$pkg")
+        fi
+    done
+
+    if [[ ${#FAILED[@]} -gt 0 ]]; then
+        warn "The following packages could not be installed and may need a PPA or a different name on your distro: ${FAILED[*]}"
         return 1
     fi
 
-    if ! sudo apt install -y "${TO_INSTALL[@]}"; then
-        fail "Failed to install one or more packages: ${TO_INSTALL[*]}"
-        return 1
-    fi
-    
     success "Package installation complete."
     return 0
 }
