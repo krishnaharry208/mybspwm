@@ -1,8 +1,11 @@
 #!/bin/sh
 
 pgrep -x sxhkd > /dev/null || sxhkd &
+lxpolkit &
 
 # Create workspaces
+xsetroo -cursor_name left_ptr &
+
 bspc monitor eDP-1 -d 1 2 3 4 5 6 7 8 9 10
 bspc monitor eDP -d 1 2 3 4 5 6 7 8 9 10
 
@@ -43,6 +46,8 @@ bspc config gapless_monocle      true
 
 # Portal dialogs
 bspc rule -a Xdg-desktop-portal-gtk state=floating rectangle=840x760+0+0 center=off
+
+bspc rule -a Blueman-manager state=floating rectangle=840x760+0+0 center=on
 
 
 # ----------------------------------------------------
