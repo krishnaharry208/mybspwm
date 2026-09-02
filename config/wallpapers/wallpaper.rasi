@@ -1,5 +1,6 @@
 configuration {
     show-icons:                 true;
+    cycle:                      false;         /* Stops the menu from jumping back to the top */
 }
 
 window {
@@ -52,7 +53,18 @@ listview {
     spacing:                    20px;          /* Clean spacing between grid items */
     layout:                     vertical;
     dynamic:                    true;
-    scrollbar:                  false;       
+    scrollbar:                  true;          /* Enabled scrollbar */
+}
+
+/* --- Scrollbar Customization --- */
+scrollbar {
+    width:                      6px;           /* Slim, modern scrollbar width */
+    border:                     0px;
+    handle-width:               6px;
+    handle-color:               #b4befe;       /* Lavender accent color to match your prompt */
+    background-color:           #101520;       /* Dark background track for contrast */
+    margin:                     0px 0px 0px 10px; /* Gap separating list elements from the bar */
+    border-radius:              10px;
 }
 
 element {
