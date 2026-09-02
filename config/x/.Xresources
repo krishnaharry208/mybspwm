@@ -20,10 +20,10 @@ Xft.lcdfilter: lcddefault
 #define EMOJI Noto Color Emoji
 #define NERD_FONT Font Awesome 5 Free Solid
 
-#define FONT_SIZE 10
-#define ICON_SIZE 10
-#define EMOJI_SIZE 10
-#define NERD_SIZE 10
+#define FONT_SIZE 11
+#define ICON_SIZE 11
+#define EMOJI_SIZE 11
+#define NERD_SIZE 11
 
 
 !========================================================
@@ -41,7 +41,7 @@ URxvt.boldItalicFont: xft:FONT:style=Bold Italic:size=FONT_SIZE
 
 
 !========================================================
-! COLORS (KEEP YOUR FILE)
+! COLORS
 !========================================================
 
 #include ".Xnord"
@@ -56,7 +56,7 @@ URxvt*lineSpace: 0
 URxvt*letterSpace: -1
 
 URxvt.scrollBar: false
-URxvt.internalBorder: 20
+URxvt.internalBorder: 12
 URxvt.geometry: 184x44
 
 URxvt.cursorBlink: true
@@ -67,7 +67,6 @@ URxvt.loginShell: true
 
 URxvt.perl-ext: default,matcher,resize-font
 URxvt.url-launcher: linkhandler
-
 URxvt.matcher.button: 1
 
 URxvt.keysym.M-r: perl:matcher:last
@@ -76,7 +75,7 @@ URxvt.keysym.M-e: perl:matcher:select
 
 
 !========================================================
-! SCROLL FIX
+! SCROLL
 !========================================================
 
 URxvt.scrollTtyOutput: false
@@ -103,7 +102,7 @@ xterm.vt100.cursorBlink: true
 xterm.vt100.selectToClipboard: true
 xterm.vt100.visualBell: false
 
-XTerm*faceSize: 10
+XTerm*faceSize: 11
 xterm.vt100.faceName: monospace
 
 XTerm*loginshell: true
@@ -114,8 +113,8 @@ XTerm*savelines: 8192
 ! ST
 !========================================================
 
-st.font: monospace:pixelsize=18:antialias=true
+st.font: Fira Code:pixelsize=16:antialias=true
 st.alpha: 1
-st.borderpx: 20
+st.borderpx: 12
 st.cursorshape: 2
 st.boxdraw: 1
