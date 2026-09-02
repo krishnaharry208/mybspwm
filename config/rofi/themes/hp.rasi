@@ -1,0 +1,119 @@
+configuration {
+    modi:                       "drun";
+    show-icons:                 true;
+    display-drun:               "🔍";
+    drun-display-format:        "{name}";
+    font:                       "JetBrains Mono Regular 12";
+}
+
+/* Global Variables */
+* {
+    background-color:           transparent;
+    margin:                     0px;
+    padding:                    0px;
+    spacing:                    0px;
+}
+
+window {
+    width:                      960px;         /* Widened slightly to give 16:9 widescreen vibes */
+    anchor:                     center;
+    location:                   center;
+    border:                     2px;
+    border-color:               #161b25;       
+    border-radius:              20px;        
+    background-color:           #0a0e14;
+}
+
+mainbox {
+    background-color:           transparent;
+    children:                   [ inputbar, listview ]; 
+    spacing:                    24px;          
+    padding:                    32px;        
+}
+
+/* --- Search Input Styling --- */
+inputbar {
+    background-color:           #101520;       
+    border:                     2px;
+    border-color:               #161b25;
+    border-radius:              14px;
+    padding:                    14px 18px;
+    children:                   [ prompt, entry ];      
+}
+
+prompt {
+    background-color:           transparent;
+    text-color:                 #b4befe;       
+    font:                       "JetBrains Mono Bold 12";
+    margin:                     0px 10px 0px 0px;
+}
+
+entry {
+    background-color:           transparent;
+    text-color:                 #ffffff;
+    font:                       "JetBrains Mono Regular 12";
+    placeholder:                "Search applications...";  
+    placeholder-color:          #585b70;       
+}
+
+/* --- Grid List Styling --- */
+listview {
+    background-color:           transparent;
+    columns:                    4;             
+    lines:                      3;             
+    spacing:                    20px;          /* Clean spacing between grid items */
+    layout:                     vertical;
+    dynamic:                    true;
+    scrollbar:                  true;          /* ◄ Enabled scrollbar */
+    cycle:                      false;         /* Kept false so it doesn't loop at the bottom */
+}
+
+/* --- Minimalist Right-Side Scrollbar Styling --- */
+scrollbar {
+    width:                      4px;           /* Super thin and minimalist */
+    border:                     0px;
+    handle-width:               4px;
+    handle-color:               #b4befe;       /* Matches your gorgeous lavender accent color */
+    background-color:           #101520;       /* Dark background lane for the track */
+    margin:                     0px 0px 0px 12px; /* Pushes it slightly right of the grid */
+    border-radius:              10px;
+}
+
+element {
+    background-color:           #101520;     
+    text-color:                 #8a93a5;
+    orientation:                vertical;
+    /* Match the selection border layout to completely eliminate layout shifting/shaking */
+    border:                     0px 3px 0px 3px; 
+    border-color:               transparent;   
+    border-radius:              16px;        
+    padding:                    16px 14px;     
+    children:                   [ element-icon, element-text ];
+    spacing:                    12px;        
+    clip-to-bounds:             true;        
+}
+
+element selected {
+    background-color:           #161b25;       
+    border-color:               #b4befe;       /* Accent active color on left/right edges */
+    text-color:                 #ffffff;     
+    border:                     0px 3px 0px 3px;
+    border-radius:              16px;
+}
+
+element-icon {
+    size:                       136px;         /* Upgraded size for beautifully clear previews */
+    background-color:           transparent;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    expand:                     true;        
+}
+
+element-text {
+    background-color:           transparent;
+    text-color:                 inherit;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    font:                       "JetBrains Mono Bold 11"; 
+    expand:                     false;       
+}

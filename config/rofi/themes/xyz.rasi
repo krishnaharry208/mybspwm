@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Rofi Nord Theme Configuration (No Left Sidebar - Right Scrollbar Added)
+   ========================================================================== */
+
+configuration {
+    modi:                       "drun";
+    show-icons:                 true;
+    display-drun:               "🔍";
+    drun-display-format:        "{name}";
+    font:                       "JetBrainsMono Nerd Font 11";
+}
+
+/* --- Color Palette (Nord) --- */
+* {
+    nord0:     #2e3440; 
+    nord1:     #3b4252; 
+    nord2:     #434c5e; 
+    nord3:     #4c566a; 
+    nord4:     #d8dee9; 
+    nord5:     #e5e9f0;
+    nord6:     #eceff4;
+    nord7:     #8fbcbb;
+    nord8:     #88c0d0; 
+    nord9:     #81a1c1;
+    nord10:    #5e81ac;
+
+    background-color:           transparent;
+    text-color:                 @nord4;
+    margin:                     0;
+    padding:                    0;
+    spacing:                    0;
+}
+
+/* --- Main Window --- */
+window {
+    width:                      800px; /* Slightly wider to accommodate the right scrollbar cleanly */
+    height:                     700px; 
+    x-offset:                   0px;
+    y-offset:                   0px;
+    
+    background-color:           @nord0;
+    border:                     2px;
+    border-color:               @nord3;
+    border-radius:              16px;
+    
+    cursor:                     "default";
+}
+
+/* --- Main Layout --- */
+mainbox {
+    enabled:                    true;
+    spacing:                    15px;
+    padding:                    25px;
+    orientation:                vertical; 
+    children:                   [ "inputbar", "listview" ]; 
+}
+
+/* --- Input Bar (Search) --- */
+inputbar {
+    enabled:                    true;
+    spacing:                    10px;
+    padding:                    12px 16px;
+    background-color:           @nord1;
+    border-radius:              10px;
+    children:                   [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:                    true;
+    text-color:                 @nord8;
+}
+
+entry {
+    enabled:                    true;
+    text-color:                 @nord4;
+    cursor:                     "text";
+    placeholder:                "Search applications...";
+    placeholder-color:          @nord3;
+}
+
+/* --- List View (Results Grid with Right Scrollbar Enabled) --- */
+listview {
+    enabled:                    true;
+    columns:                    3;       
+    lines:                      3;       
+    cycle:                      false;    /* Prevents wrapping/looping back to the top */
+    dynamic:                    true;
+    scrollbar:                  true;     /* ENABLED: Puts the scrollbar on the right side */
+    scrollbar-width:            8px;
+    layout:                     vertical;
+    reverse:                    false;
+    fixed-height:               true;
+    fixed-columns:              true;
+    
+    spacing:                    12px;
+    margin:                     10px 0px 0px 0px;
+}
+
+/* --- Right Scrollbar Styles --- */
+scrollbar {
+    handle-width:               6px;
+    handle-color:               @nord8;  /* Accent Cyan color for the scroll handle */
+    background-color:           @nord1;  /* Dark track background */
+    border-radius:              4px;
+    margin:                     0px 0px 0px 10px;
+}
+
+/* --- Element (Grid Box) --- */
+element {
+    enabled:                    true;
+    orientation:                vertical; 
+    spacing:                    12px;
+    padding:                    20px 10px;
+    border-radius:              12px;
+    cursor:                     "pointer";
+}
+
+element normal.normal {
+    background-color:           transparent;
+    text-color:                 @nord4;
+}
+
+element selected.normal {
+    background-color:           @nord8;
+    text-color:                 @nord0;
+}
+
+element-icon {
+    size:                       48px;     
+    cursor:                     inherit;
+    horizontal-align:           0.5;
+}
+
+element-text {
+    vertical-align:             0.5;
+    horizontal-align:           0.5;      
+    text-color:                 inherit;
+    cursor:                     inherit;
+}

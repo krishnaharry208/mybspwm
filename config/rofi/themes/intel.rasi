@@ -1,0 +1,144 @@
+configuration {
+    modi:                       "drun";
+    show-icons:                 true;
+    display-drun:               "🔍";
+    drun-display-format:        "{name}";
+    font:                       "JetBrainsMono Nerd Font 11";
+}
+
+/* Global Variables & Colors */
+* {
+    /* Color Palette */
+    bg-window:                  #111215;     /* Dark main background */
+    bg-search:                  #1a1c23;     /* Slightly lighter entry field */
+    bg-selected:                #282c34;     /* Subtle highlight contrast */
+    fg-normal:                  #abb2bf;     /* Muted text */
+    fg-selected:                #ffffff;     /* Bright text for clarity */
+    border-color:               #21242b;     /* Delicate structural border */
+    
+    /* Layout Defaults */
+    background-color:           transparent;
+    text-color:                 @fg-normal;
+    margin:                     0px;
+    padding:                    0px;
+    spacing:                    0px;
+}
+
+/* Main Window Window Container */
+window {
+    location:                   center;
+    anchor:                     center;
+    width:                      600px;
+    x-offset:                   0px;
+    y-offset:                   0px;
+    
+    enabled:                    true;
+    border:                     1px solid;
+    border-color:               @border-color;
+    border-radius:              8px;
+    background-color:           @bg-window;
+    cursor:                     "default";
+}
+
+/* Main Wrapper Box */
+mainbox {
+    enabled:                    true;
+    spacing:                    10px;
+    padding:                    14px;
+    background-color:           transparent;
+    children:                   [ "inputbar", "listview" ];
+}
+
+/* Input Bar (Search Section) */
+inputbar {
+    enabled:                    true;
+    spacing:                    8px;
+    padding:                    10px 14px;
+    background-color:           @bg-search;
+    border-radius:              6px;
+    text-color:                 @fg-normal;
+    children:                   [ "prompt", "entry" ];
+}
+
+/* Search Icon Indicator */
+prompt {
+    enabled:                    true;
+    background-color:           transparent;
+    text-color:                 @fg-normal;
+    vertical-align:             0.5;
+}
+
+/* Search Text Input Field */
+entry {
+    enabled:                    true;
+    background-color:           transparent;
+    text-color:                 @fg-selected;
+    cursor:                     text;
+    placeholder:                "Search applications...";
+    placeholder-color:          #5c6370;
+    vertical-align:             0.5;
+}
+
+/* Application List View Container */
+/* Application List View Container */
+listview {
+    enabled:                    true;
+    columns:                    1;
+    lines:                      8;
+    cycle:                      false;    /* ◄ Changed from true to false */
+    dynamic:                    true;
+    scrollbar:                  true;
+    layout:                     vertical;
+    reverse:                    false;
+    fixed-height:               true;
+    fixed-columns:              true;
+    
+    spacing:                    4px;
+    background-color:           transparent;
+    cursor:                     "default";
+}
+
+
+/* Elements / Rows inside the List */
+element {
+    enabled:                    true;
+    spacing:                    12px;
+    padding:                    8px 12px;
+    background-color:           transparent;
+    text-color:                 @fg-normal;
+    cursor:                     pointer;
+}
+
+/* Target element selection behavior */
+element selected.normal {
+    background-color:           @bg-selected;
+    text-color:                 @fg-selected;
+    /* Only the top-left and bottom-left corners are rounded (TopRight, BottomRight remain 0) */
+    border-radius:              6px 0px 0px 6px; 
+}
+
+/* Element Graphic Components */
+element-icon {
+    background-color:           transparent;
+    text-color:                 inherit;
+    size:                       22px;
+    cursor:                     inherit;
+}
+
+element-text {
+    background-color:           transparent;
+    text-color:                 inherit;
+    highlight:                  inherit;
+    cursor:                     inherit;
+    vertical-align:             0.5;
+}
+
+/* Minimalist Thin Scrollbar */
+scrollbar {
+    width:                      3px;
+    border:                     0px;
+    handle-width:               3px;
+    handle-color:               #3f444a;
+    background-color:           #16171a;
+    margin:                     0px 0px 0px 8px;
+}

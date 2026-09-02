@@ -1,0 +1,125 @@
+/* ==========================================================================
+   Rofi Nord Theme Configuration
+   ========================================================================== */
+
+configuration {
+    modi:                       "drun";
+    show-icons:                 true;
+    display-drun:               "🔍";
+    drun-display-format:        "{name}";
+    font:                       "JetBrainsMono Nerd Font 11";
+}
+
+/* --- Color Palette (Nord) --- */
+* {
+    nord0:     #2e3440; /* Base background */
+    nord1:     #3b4252; /* Element hover background */
+    nord2:     #434c5e; 
+    nord3:     #4c566a; /* Muted text / borders */
+    nord4:     #d8dee9; /* Primary text */
+    nord5:     #e5e9f0;
+    nord6:     #eceff4;
+    nord7:     #8fbcbb;
+    nord8:     #88c0d0; /* Accent (Cyan) */
+    nord9:     #81a1c1;
+    nord10:    #5e81ac;
+
+    background-color:           transparent;
+    text-color:                 @nord4;
+    margin:                     0;
+    padding:                    0;
+    spacing:                    0;
+}
+
+/* --- Main Window --- */
+window {
+    width:                      550px;
+    x-offset:                   10px;
+    y-offset:                   10px;
+    
+    background-color:           @nord0;
+    border:                     2px;
+    border-color:               @nord3;
+    border-radius:              12px;
+    
+    cursor:                     "default";
+}
+
+/* --- Main Container --- */
+mainbox {
+    enabled:                    true;
+    spacing:                    10px;
+    padding:                    20px;
+    children:                   [ "inputbar", "listview" ];
+}
+
+/* --- Input Bar (Search) --- */
+inputbar {
+    enabled:                    true;
+    spacing:                    10px;
+    padding:                    10px 14px;
+    background-color:           @nord1;
+    border-radius:              8px;
+    children:                   [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:                    true;
+    text-color:                 @nord8;
+}
+
+entry {
+    enabled:                    true;
+    text-color:                 @nord4;
+    cursor:                     "text";
+    placeholder:                "Search applications...";
+    placeholder-color:          @nord3;
+}
+
+/* --- List View (Results) --- */
+listview {
+    enabled:                    true;
+    columns:                    1;
+    lines:                      6;
+    cycle:                      true;
+    dynamic:                    true;
+    scrollbar:                  false;
+    layout:                     vertical;
+    reverse:                    false;
+    fixed-height:               true;
+    fixed-columns:              true;
+    
+    spacing:                    4px;
+    margin:                     5px 0px 0px 0px;
+}
+
+/* --- Element (Individual Rows) --- */
+element {
+    enabled:                    true;
+    spacing:                    12px;
+    padding:                    8px 12px;
+    border-radius:              8px;
+    cursor:                     "pointer";
+}
+
+element normal.normal {
+    background-color:           transparent;
+    text-color:                 @nord4;
+}
+
+element selected.normal {
+    background-color:           @nord8;
+    text-color:                 @nord0;
+}
+
+element-icon {
+    size:                       24px;
+    cursor:                     inherit;
+}
+
+element-text {
+    vertical-align:             0.5;
+    horizontal-align:           0.0;
+    text-color:                 inherit;
+    cursor:                     inherit;
+}
