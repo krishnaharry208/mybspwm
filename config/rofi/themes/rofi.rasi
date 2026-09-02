@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ROUNDED ONE-DARK SIDEBAR (Optimized for 1366x768)
+ * ROUNDED ONE-DARK SIDEBAR
  *******************************************************************************/
 
 * {
@@ -13,12 +13,14 @@
     border-col:  #61afef;
     grey:        #565c64;
 
-    /* Font - Scaled down for 768p resolution */
-    font: "JetBrainsMono Nerd Font 10";
+   /* Font - Scaled resolution */
+/* font: "JetBrainsMono Nerd Font 12"; */
+font: "FiraCode Nerd Font 12";
+
 }
 
 window {
-    width:            450px; /* Slimmer width for lower resolution */
+    width:            600px; /* Slimmer width for lower resolution */
     height:           100%;
     location:         west;
     anchor:           west;
